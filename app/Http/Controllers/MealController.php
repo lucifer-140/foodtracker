@@ -15,11 +15,17 @@ class MealController extends Controller
     public function create()
     {
         $ingredients = Ingredient::orderBy('name')->get();
-        $units = Unit::orderBy('name')->get();
+        $units = Unit::all();
+
+        $unitsJson = $units->keyBy('id');
+        $ingredientsJson = $ingredients->keyBy('id');
+
 
         return view('meals.create', [
             'ingredients' => $ingredients,
             'units' => $units,
+            'ingredientsJson' => $ingredientsJson,
+            'unitsJson' => $unitsJson,
         ]);
     }
 
@@ -60,12 +66,18 @@ class MealController extends Controller
 
     public function show(Meal $meal)
     {
+        // 1. Authorize that the user owns the meal
         if (auth()->user()->id !== $meal->user_id) {
             abort(403);
         }
 
+        // 2. Eager load the ingredients relationship
         $meal->load('ingredients');
 
+        // Fetch all unit data at once and key it by ID for efficient lookup
+        $units = \App\Models\Unit::all()->keyBy('id');
+
+        // 3. Initialize nutritional totals
         $total = [
             'calories' => 0,
             'protein' => 0,
@@ -73,22 +85,33 @@ class MealController extends Controller
             'carbs' => 0,
         ];
 
+        // 4. Calculate totals WITH unit conversion
         foreach ($meal->ingredients as $ingredient) {
-
+            // Get data from the pivot table
             $quantity = $ingredient->pivot->quantity;
+            $unitId = $ingredient->pivot->unit_id;
 
-            $total['calories'] += ($ingredient->calories_per_100g / 100) * $quantity;
-            $total['protein']  += ($ingredient->protein_per_100g / 100) * $quantity;
-            $total['fat']      += ($ingredient->fat_per_100g / 100) * $quantity;
-            $total['carbs']    += ($ingredient->carbs_per_100g / 100) * $quantity;
+            // Find the conversion factor for the selected unit
+            $conversionFactor = 1.0; // Default to 1 (for grams or if unit is somehow not found)
+            if (isset($units[$unitId])) {
+                $conversionFactor = $units[$unitId]->conversion_factor;
+            }
+
+            // The key step: Convert the user-entered quantity into a standardized gram amount
+            $quantityInGrams = $quantity * $conversionFactor;
+
+            // Calculate nutrition using the correctly converted gram amount
+            $total['calories'] += ($ingredient->calories_per_100g / 100) * $quantityInGrams;
+            $total['protein']  += ($ingredient->protein_per_100g / 100) * $quantityInGrams;
+            $total['fat']      += ($ingredient->fat_per_100g / 100) * $quantityInGrams;
+            $total['carbs']    += ($ingredient->carbs_per_100g / 100) * $quantityInGrams;
         }
 
-        $units = Unit::all()->keyBy('id');
-
+        // 5. Pass the accurately calculated data to the view
         return view('meals.show', [
             'meal' => $meal,
             'total' => $total,
-            'units' => $units,
+            'units' => $units, // The view still needs this to display the unit abbreviation in the list
         ]);
     }
 
@@ -114,14 +137,34 @@ class MealController extends Controller
         }
 
         $meal->load('ingredients');
-
         $ingredients = Ingredient::orderBy('name')->get();
-        $units = Unit::orderBy('name')->get();
+        $ingredientsJson = $ingredients->keyBy('id');
+
+        $units = Unit::all();
+        $unitsJson = $units->keyBy('id');
+
+        // --- NEW: CALCULATE INITIAL TOTALS ---
+        $total = ['calories' => 0, 'protein' => 0, 'fat' => 0, 'carbs' => 0];
+        foreach ($meal->ingredients as $ingredient) {
+            $quantity = $ingredient->pivot->quantity;
+            $unitId = $ingredient->pivot->unit_id;
+            $conversionFactor = $unitsJson[$unitId]->conversion_factor ?? 1.0;
+            $quantityInGrams = $quantity * $conversionFactor;
+
+            $total['calories'] += ($ingredient->calories_per_100g / 100) * $quantityInGrams;
+            $total['protein']  += ($ingredient->protein_per_100g / 100) * $quantityInGrams;
+            $total['fat']      += ($ingredient->fat_per_100g / 100) * $quantityInGrams;
+            $total['carbs']    += ($ingredient->carbs_per_100g / 100) * $quantityInGrams;
+        }
+        // --- END OF NEW CALCULATION ---
 
         return view('meals.edit', [
             'meal' => $meal,
             'ingredients' => $ingredients,
             'units' => $units,
+            'ingredientsJson' => $ingredientsJson,
+            'unitsJson' => $unitsJson,
+            'total' => $total, // <-- PASS THE CALCULATED TOTALS
         ]);
     }
 
