@@ -41,6 +41,8 @@ Route::middleware('auth')->group(function () {
         Route::delete('/remove/{user}', [\App\Http\Controllers\FriendshipController::class, 'removeFriend'])->name('remove');
     });
 
+    Route::get('/feed', [\App\Http\Controllers\FeedController::class, 'index'])->name('feed.index');
+    Route::get('/friends/meals/{meal}', [\App\Http\Controllers\FeedController::class, 'showFriendMeal'])->name('friends.meals.show');
 
 });
 

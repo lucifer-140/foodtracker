@@ -8,9 +8,12 @@ use App\Models\Unit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class MealController extends Controller
 {
+
+    use AuthorizesRequests;
 
     public function create()
     {
@@ -67,9 +70,7 @@ class MealController extends Controller
     public function show(Meal $meal)
     {
         // 1. Authorize that the user owns the meal
-        if (auth()->user()->id !== $meal->user_id) {
-            abort(403);
-        }
+        $this->authorize('view', $meal);
 
         // 2. Eager load the ingredients relationship
         $meal->load('ingredients');
@@ -117,9 +118,7 @@ class MealController extends Controller
 
     public function destroy(Meal $meal)
     {
-        if (auth()->user()->id !== $meal->user_id) {
-            abort(403);
-        }
+        $this->authorize('delete', $meal);
 
         if ($meal->image_path) {
             Storage::disk('public')->delete($meal->image_path);
@@ -132,9 +131,7 @@ class MealController extends Controller
 
     public function edit(Meal $meal)
     {
-        if (auth()->user()->id !== $meal->user_id) {
-            abort(403);
-        }
+        $this->authorize('update', $meal);
 
         $meal->load('ingredients');
         $ingredients = Ingredient::orderBy('name')->get();
@@ -170,9 +167,7 @@ class MealController extends Controller
 
     public function update(Request $request, Meal $meal)
     {
-        if (auth()->user()->id !== $meal->user_id) {
-            abort(403);
-        }
+        $this->authorize('update', $meal);
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
