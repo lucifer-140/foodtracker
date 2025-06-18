@@ -53,6 +53,13 @@
                         </div>
 
                         <div class="mt-6">
+
+                            @error('ingredients')
+                            <div class="mb-4 p-3 bg-red-100 dark:bg-red-900/20 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-300 rounded-md" role="alert">
+                                <span>{{ $message }}</span>
+                            </div>
+                            @enderror
+
                             <h3 class="text-lg font-medium text-gray-900">Ingredients</h3>
                             <div id="ingredients-container" class="mt-4 space-y-4">
                                 @foreach ($meal->ingredients as $index => $existingIngredient)
