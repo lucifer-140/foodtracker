@@ -1,8 +1,13 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Dashboard') }}
-        </h2>
+        <div class="mb-4 sm:mb-0">
+            <h2 class="text-2xl font-bold text-gray-800">
+                {{ __('Dashboard') }}
+            </h2>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                Stay on track with your health and nutrition goals.
+            </p>
+        </div>
     </x-slot>
 
     <div class="py-12">

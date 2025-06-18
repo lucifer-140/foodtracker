@@ -31,7 +31,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/meals/{meal}/edit', [MealController::class, 'edit'])->name('meals.edit');
     Route::put('/meals/{meal}', [MealController::class, 'update'])->name('meals.update');
 
+    Route::get('/users', [\App\Http\Controllers\FriendshipController::class, 'indexUsers'])->name('users.index');
 
+    Route::prefix('friends')->name('friends.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\FriendshipController::class, 'index'])->name('index');
+        Route::post('/add/{user}', [\App\Http\Controllers\FriendshipController::class, 'sendRequest'])->name('add');
+        Route::post('/accept/{user}', [\App\Http\Controllers\FriendshipController::class, 'acceptRequest'])->name('accept');
+        Route::post('/decline/{user}', [\App\Http\Controllers\FriendshipController::class, 'declineRequest'])->name('decline');
+        Route::delete('/remove/{user}', [\App\Http\Controllers\FriendshipController::class, 'removeFriend'])->name('remove');
+    });
 
 
 });
