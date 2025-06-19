@@ -61,8 +61,11 @@ class IngredientSeeder extends Seeder
             ['name' => 'Almonds', 'calories_per_100g' => 579, 'protein_per_100g' => 21, 'fat_per_100g' => 49, 'carbs_per_100g' => 22],
         ];
 
-        foreach ($ingredients as $ingredient) {
-            Ingredient::create($ingredient);
+        foreach ($ingredients as $ingredientData) {
+            Ingredient::updateOrCreate(
+                ['name' => $ingredientData['name']],
+                $ingredientData
+            );
         }
     }
 }

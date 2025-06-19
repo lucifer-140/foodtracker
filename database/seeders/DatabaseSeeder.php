@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\Meal;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -13,17 +14,24 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
 
-        // User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
 
-        // We call our new seeder classes here
         $this->call([
             UnitSeeder::class,
             IngredientSeeder::class,
         ]);
+
+
+        User::factory()->create([
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+        ]);
+        User::factory(15)->create()->each(function ($user) {
+            Meal::factory(rand(2, 10))->create([
+                'user_id' => $user->id,
+            ]);
+        });
+
+
     }
 }

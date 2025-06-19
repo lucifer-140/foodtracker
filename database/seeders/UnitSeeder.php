@@ -35,8 +35,11 @@ class UnitSeeder extends Seeder
             ['name' => 'piece', 'abbreviation' => 'pc', 'conversion_factor' => 1.0],
         ];
 
-        foreach ($units as $unit) {
-            Unit::create($unit);
+        foreach ($units as $unitData) {
+            \App\Models\Unit::updateOrCreate(
+                ['name' => $unitData['name']],
+                $unitData
+            );
         }
     }
 }
