@@ -105,4 +105,24 @@ class FriendshipController extends Controller
         return redirect()->route('users.index')->with('success', 'You are no longer friends with ' . $user->name);
     }
 
+    public function showUserProfile(User $user)
+    {
+        $currentUser = auth()->user();
+
+        if ($currentUser->id === $user->id) {
+            return redirect()->route('dashboard');
+        }
+
+        if (!$currentUser->friends->contains($user)) {
+            abort(403, 'You can only view the profiles of your friends.');
+        }
+
+        $meals = $user->meals()->latest()->paginate(9);
+
+        return view('users.show-profile', [
+            'user' => $user,
+            'meals' => $meals,
+        ]);
+    }
+
 }

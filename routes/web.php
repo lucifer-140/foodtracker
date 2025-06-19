@@ -32,6 +32,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/meals/{meal}', [MealController::class, 'update'])->name('meals.update');
 
     Route::get('/users', [\App\Http\Controllers\FriendshipController::class, 'indexUsers'])->name('users.index');
+    Route::get('/users/{user}', [\App\Http\Controllers\FriendshipController::class, 'showUserProfile'])->name('users.show');
 
     Route::prefix('friends')->name('friends.')->group(function () {
         Route::get('/', [\App\Http\Controllers\FriendshipController::class, 'index'])->name('index');
