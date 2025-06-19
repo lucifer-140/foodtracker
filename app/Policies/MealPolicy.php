@@ -37,5 +37,4 @@ class MealPolicy
         return $user->id === $meal->user_id;
     }
 
-    // Other policy methods like create, restore, forceDelete can be added here if needed.
 }

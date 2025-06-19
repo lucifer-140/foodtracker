@@ -16,19 +16,16 @@ class FeedController extends Controller
     public function index()
     {
 
-        // 1. Get the currently authenticated user
         $user = auth()->user();
 
-        // 2. Get the IDs of all their friends
         $friendIds = $user->friends->pluck('id');
 
-        // 3. Fetch all meals where the 'user_id' is in our list of friend IDs
-        $meals = Meal::whereIn('user_id', $friendIds)
-            ->with('user') // Eager load the 'user' relationship to get author details efficiently
-            ->latest()     // Order by the newest meals first
-            ->paginate(10); // Paginate the results
 
-        // 4. Pass the meals to the view
+        $meals = Meal::whereIn('user_id', $friendIds)
+            ->with('user')
+            ->latest()
+            ->paginate(10);
+
         return view('feed.index', [
             'meals' => $meals,
         ]);
@@ -36,11 +33,8 @@ class FeedController extends Controller
 
     public function showFriendMeal(Meal $meal)
     {
-        // Use our MealPolicy to authorize this action.
-        // This will check if the user is friends with the meal's owner.
         $this->authorize('view', $meal);
 
-        // --- The rest of the logic is for calculating totals ---
         $meal->load('ingredients');
         $units = \App\Models\Unit::all()->keyBy('id');
         $total = [
@@ -59,7 +53,6 @@ class FeedController extends Controller
             $total['carbs']    += ($ingredient->carbs_per_100g / 100) * $quantityInGrams;
         }
 
-        // Return a NEW view file
         return view('feed.show-meal', [
             'meal' => $meal,
             'total' => $total,

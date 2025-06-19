@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('units', function (Blueprint $table) {
-            // This column will store how many grams the unit is equivalent to.
-            // e.g., for 'kilogram', the value would be 1000.
+
+            // data store per grams to the unit it is to...example 1000g for 1 kg
             $table->decimal('conversion_factor', 10, 4)->after('abbreviation')->default(1.0);
         });
     }

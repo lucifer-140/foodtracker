@@ -60,12 +60,12 @@
                         </a>
                     </div>
                 @empty
-                    <div class="col-span-full bg-white dark:bg-gray-800 rounded-lg shadow-md text-center py-16">
+                    <div class="col-span-full bg-white rounded-lg shadow-md text-center py-16">
                         <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
                         </svg>
-                        <h3 class="mt-4 text-lg font-medium text-gray-900 dark:text-gray-100">Your Feed is Empty</h3>
-                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">When your friends post meals, they will show up here.</p>
+                        <h3 class="mt-4 text-lg font-medium text-gray-900">Your Feed is Empty</h3>
+                        <p class="mt-1 text-sm text-gray-500">When your friends post meals, they will show up here.</p>
                         <div class="mt-6">
                             <a href="{{ route('users.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">
                                 Find Friends

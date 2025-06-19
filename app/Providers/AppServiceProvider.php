@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use App\Models\Meal;         // <-- IMPORT MEAL MODEL
-use App\Policies\MealPolicy; // <-- IMPORT MEAL POLICY
+use App\Models\Meal;
+use App\Policies\MealPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -14,7 +14,7 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        Meal::class => MealPolicy::class, // <-- ADD THIS LINE
+        Meal::class => MealPolicy::class,
     ];
 
     /**
