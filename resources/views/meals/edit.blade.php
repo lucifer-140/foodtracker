@@ -64,7 +64,7 @@
                             <div id="ingredients-container" class="mt-4 space-y-4">
                                 @foreach ($meal->ingredients as $index => $existingIngredient)
                                     <div class="flex items-center space-x-3" data-ingredient-row="{{ $index }}">
-                                        {{-- Ingredient Dropdown --}}
+
                                         <div class="w-5/12">
                                             <div class="relative group">
                                                 <input type="hidden" name="ingredients[{{ $index }}][id]" value="{{ $existingIngredient->id }}" required>
@@ -83,12 +83,12 @@
                                             </div>
                                         </div>
 
-                                        {{-- Quantity Input --}}
+
                                         <div class="w-3/12">
                                             <input type="number" name="ingredients[{{ $index }}][quantity]" placeholder="Quantity" class="block w-full mt-1 border-gray-300 rounded-md shadow-sm" value="{{ $existingIngredient->pivot->quantity }}" required min="1">
                                         </div>
 
-                                        {{-- Unit Select --}}
+
                                         <div class="w-3/12">
                                             <select name="ingredients[{{ $index }}][unit_id]" class="block w-full mt-1 border-gray-300 rounded-md shadow-sm" required>
                                                 @foreach($units as $unit)
@@ -99,7 +99,7 @@
                                             </select>
                                         </div>
 
-                                        {{-- Remove Button --}}
+
                                         <div class="w-1/12">
                                             <button type="button" class="remove-btn inline-flex items-center justify-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-500 active:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150">X</button>
                                         </div>
@@ -125,14 +125,13 @@
     </div>
 
     <script>
-        // 1. Make the ingredients data from the controller available to our script
+
         const allIngredients = @json($ingredientsJson);
         const allUnits = @json($unitsJson);
 
         const ingredientsContainer = document.getElementById('ingredients-container');
         let ingredientIndex = {{ $meal->ingredients->count() }};
 
-        // 2. The calculation function
         function updateTotals() {
             let totals = { calories: 0, protein: 0, fat: 0, carbs: 0 };
             const ingredientRows = ingredientsContainer.querySelectorAll('[data-ingredient-row]');
@@ -165,7 +164,6 @@
             document.getElementById('total-carbs').textContent = Math.round(totals.carbs) + 'g';
         }
 
-        // 3. The `addIngredientRow` function with the corrected button
         function addIngredientRow() {
             const index = ingredientIndex++;
             const newRow = document.createElement('div');
@@ -181,7 +179,6 @@
             initializeDropdown(newRow);
         }
 
-        // 4. The `initializeDropdown` function with the corrected selector
         function initializeDropdown(context) {
             const dropdownButton = context.querySelector('.dropdown-button');
             const dropdownMenu = context.querySelector('.dropdown-menu');
@@ -189,7 +186,7 @@
             const options = context.querySelectorAll('.option-item');
             const hiddenInput = context.querySelector('input[type="hidden"]');
             const dropdownLabel = context.querySelector('.dropdown-label');
-            const removeBtn = context.querySelector('.remove-btn'); // Correct selector
+            const removeBtn = context.querySelector('.remove-btn');
 
             dropdownButton.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('hidden'); });
 
@@ -210,14 +207,12 @@
                 });
             });
 
-            // This listener will now work correctly
             removeBtn.addEventListener('click', () => {
                 context.remove();
                 updateTotals();
             });
         }
 
-        // 5. The Event Listeners
         ingredientsContainer.addEventListener('input', (e) => {
             if (e.target.matches('input[type="number"]')) {
                 updateTotals();
@@ -229,7 +224,6 @@
             }
         });
 
-        // 6. Initialize the page on load
         document.addEventListener('DOMContentLoaded', () => {
             const existingRows = document.querySelectorAll('[data-ingredient-row]');
             existingRows.forEach(row => {
@@ -238,7 +232,6 @@
             updateTotals();
         });
 
-        // Global click listener to close dropdowns
         document.addEventListener('click', (e) => {
             document.querySelectorAll('.dropdown-menu').forEach(menu => {
                 if (!menu.contains(e.target) && !menu.previousElementSibling.contains(e.target)) {

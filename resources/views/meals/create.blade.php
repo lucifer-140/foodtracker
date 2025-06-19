@@ -75,7 +75,7 @@
         const ingredientsContainer = document.getElementById('ingredients-container');
         let ingredientIndex = 0;
 
-        // 2. The calculation function
+
         function updateTotals() {
             let totals = { calories: 0, protein: 0, fat: 0, carbs: 0 };
             const ingredientRows = ingredientsContainer.querySelectorAll('[data-ingredient-row]');
@@ -108,7 +108,7 @@
             document.getElementById('total-carbs').textContent = Math.round(totals.carbs) + 'g';
         }
 
-        // 3. The `addIngredientRow` function
+
         function addIngredientRow() {
             const index = ingredientIndex++;
             const newRow = document.createElement('div');
@@ -124,7 +124,7 @@
             initializeDropdown(newRow);
         }
 
-        // 4. The `initializeDropdown` function
+
         function initializeDropdown(context) {
             const dropdownButton = context.querySelector('.dropdown-button');
             const dropdownMenu = context.querySelector('.dropdown-menu');
@@ -159,7 +159,7 @@
             });
         }
 
-        // 5. The Event Listeners
+
         ingredientsContainer.addEventListener('input', (e) => {
             if (e.target.matches('input[type="number"]')) {
                 updateTotals();
@@ -171,12 +171,12 @@
             }
         });
 
-        // 6. Initialize the page on load
+
         document.addEventListener('DOMContentLoaded', () => {
             addIngredientRow();
         });
 
-        // Global click listener to close dropdowns
+
         document.addEventListener('click', (e) => {
             document.querySelectorAll('.dropdown-menu').forEach(menu => {
                 if (!menu.contains(e.target) && !menu.previousElementSibling.contains(e.target)) {

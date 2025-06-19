@@ -52,7 +52,7 @@ class User extends Authenticatable
         return $this->hasMany(Meal::class);
     }
 
-    // Defines the relationship for users who have sent a friend request TO this user
+
     public function friendRequestsFrom()
     {
         return $this->belongsToMany(User::class, 'friendships', 'addressee_id', 'requester_id')
@@ -60,7 +60,7 @@ class User extends Authenticatable
             ->withTimestamps();
     }
 
-    // Defines the relationship for users TO WHOM this user has sent a friend request
+
     public function friendRequestsTo()
     {
         return $this->belongsToMany(User::class, 'friendships', 'requester_id', 'addressee_id')
@@ -68,7 +68,7 @@ class User extends Authenticatable
             ->withTimestamps();
     }
 
-    // Defines friends that this user sent a request to (and were accepted)
+
     public function friendsOfMine()
     {
         return $this->belongsToMany(User::class, 'friendships', 'requester_id', 'addressee_id')
@@ -76,7 +76,7 @@ class User extends Authenticatable
             ->withTimestamps();
     }
 
-    // Defines friends that sent a request to this user (and were accepted)
+
     public function friendOf()
     {
         return $this->belongsToMany(User::class, 'friendships', 'addressee_id', 'requester_id')
@@ -85,11 +85,7 @@ class User extends Authenticatable
     }
 
 
-    /**
-     * =================================================================
-     * CONVENIENCE ACCESSORS & METHODS
-     * =================================================================
-     */
+
 
     /**
      * An accessor to get all friends for the user.
@@ -105,16 +101,15 @@ class User extends Authenticatable
         return $this->getRelation('friends');
     }
 
-    // The method that actually loads the merged friends collection
+
+
     protected function loadFriends()
     {
         $friends = $this->friendsOfMine->merge($this->friendOf);
         $this->setRelation('friends', $friends);
     }
 
-    /**
-     * Helper method to get the friendship record between this user and another.
-     */
+
     public function getFriendship(User $user)
     {
         return \App\Models\Friendship::where(function ($query) use ($user) {

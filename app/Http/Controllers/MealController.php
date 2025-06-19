@@ -8,9 +8,12 @@ use App\Models\Unit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class MealController extends Controller
 {
+
+    use AuthorizesRequests;
 
     public function create()
     {
@@ -66,18 +69,14 @@ class MealController extends Controller
 
     public function show(Meal $meal)
     {
-        // 1. Authorize that the user owns the meal
-        if (auth()->user()->id !== $meal->user_id) {
-            abort(403);
-        }
 
-        // 2. Eager load the ingredients relationship
+        $this->authorize('view', $meal);
+
         $meal->load('ingredients');
 
-        // Fetch all unit data at once and key it by ID for efficient lookup
         $units = \App\Models\Unit::all()->keyBy('id');
 
-        // 3. Initialize nutritional totals
+
         $total = [
             'calories' => 0,
             'protein' => 0,
@@ -85,41 +84,39 @@ class MealController extends Controller
             'carbs' => 0,
         ];
 
-        // 4. Calculate totals WITH unit conversion
+
         foreach ($meal->ingredients as $ingredient) {
-            // Get data from the pivot table
+
             $quantity = $ingredient->pivot->quantity;
             $unitId = $ingredient->pivot->unit_id;
 
-            // Find the conversion factor for the selected unit
-            $conversionFactor = 1.0; // Default to 1 (for grams or if unit is somehow not found)
+
+            $conversionFactor = 1.0;
             if (isset($units[$unitId])) {
                 $conversionFactor = $units[$unitId]->conversion_factor;
             }
 
-            // The key step: Convert the user-entered quantity into a standardized gram amount
+
             $quantityInGrams = $quantity * $conversionFactor;
 
-            // Calculate nutrition using the correctly converted gram amount
+
             $total['calories'] += ($ingredient->calories_per_100g / 100) * $quantityInGrams;
             $total['protein']  += ($ingredient->protein_per_100g / 100) * $quantityInGrams;
             $total['fat']      += ($ingredient->fat_per_100g / 100) * $quantityInGrams;
             $total['carbs']    += ($ingredient->carbs_per_100g / 100) * $quantityInGrams;
         }
 
-        // 5. Pass the accurately calculated data to the view
+
         return view('meals.show', [
             'meal' => $meal,
             'total' => $total,
-            'units' => $units, // The view still needs this to display the unit abbreviation in the list
+            'units' => $units,
         ]);
     }
 
     public function destroy(Meal $meal)
     {
-        if (auth()->user()->id !== $meal->user_id) {
-            abort(403);
-        }
+        $this->authorize('delete', $meal);
 
         if ($meal->image_path) {
             Storage::disk('public')->delete($meal->image_path);
@@ -132,9 +129,7 @@ class MealController extends Controller
 
     public function edit(Meal $meal)
     {
-        if (auth()->user()->id !== $meal->user_id) {
-            abort(403);
-        }
+        $this->authorize('update', $meal);
 
         $meal->load('ingredients');
         $ingredients = Ingredient::orderBy('name')->get();
@@ -143,7 +138,7 @@ class MealController extends Controller
         $units = Unit::all();
         $unitsJson = $units->keyBy('id');
 
-        // --- NEW: CALCULATE INITIAL TOTALS ---
+
         $total = ['calories' => 0, 'protein' => 0, 'fat' => 0, 'carbs' => 0];
         foreach ($meal->ingredients as $ingredient) {
             $quantity = $ingredient->pivot->quantity;
@@ -156,7 +151,7 @@ class MealController extends Controller
             $total['fat']      += ($ingredient->fat_per_100g / 100) * $quantityInGrams;
             $total['carbs']    += ($ingredient->carbs_per_100g / 100) * $quantityInGrams;
         }
-        // --- END OF NEW CALCULATION ---
+
 
         return view('meals.edit', [
             'meal' => $meal,
@@ -164,15 +159,13 @@ class MealController extends Controller
             'units' => $units,
             'ingredientsJson' => $ingredientsJson,
             'unitsJson' => $unitsJson,
-            'total' => $total, // <-- PASS THE CALCULATED TOTALS
+            'total' => $total,
         ]);
     }
 
     public function update(Request $request, Meal $meal)
     {
-        if (auth()->user()->id !== $meal->user_id) {
-            abort(403);
-        }
+        $this->authorize('update', $meal);
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
