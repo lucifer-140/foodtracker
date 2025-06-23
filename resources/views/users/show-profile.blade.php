@@ -10,15 +10,14 @@
                 </div>
                 <div>
                     <h2 class="text-2xl font-bold text-gray-800 flex items-center">
-                        <svg class="w-6 h-6 mr-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                        </svg>
                         {{ $user->name }}'s Profile
                     </h2>
                     <div class="flex items-center mt-1 text-sm text-gray-500 space-x-4">
                         <div class="flex items-center">
-                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4m-6 0h6m-6 0a1 1 0 00-1 1v10a1 1 0 001 1h6a1 1 0 001-1V8a1 1 0 00-1-1"></path>
+                            <svg class="w-4 h-4 mr-1" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+                                <g>
+                                    <path d="M24 14a5 5 0 0 1-5 5h-1v-1h1a3.99 3.99 0 0 0 .623-7.934l-.79-.124-.052-.798a5.293 5.293 0 0 0-10.214-1.57L8.17 8.59l-.977-.483A2.277 2.277 0 0 0 6.19 7.87a2.18 2.18 0 0 0-1.167.339 2.205 2.205 0 0 0-.98 1.395l-.113.505-.476.2A4 4 0 0 0 5 18h4v1H5a5 5 0 0 1-1.934-9.611 3.21 3.21 0 0 1 1.422-2.024A3.17 3.17 0 0 1 6.19 6.87a3.268 3.268 0 0 1 1.446.34 6.293 6.293 0 0 1 12.143 1.867A4.988 4.988 0 0 1 24 14zm-4.637-1.07L13.5 18.793l-2.863-2.863-.707.707 3.57 3.57 6.57-6.57z"></path>
+                                </g>
                             </svg>
                             Member since {{ $user->created_at->format('M Y') }}
                         </div>
@@ -107,8 +106,10 @@
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
                             <div class="w-12 h-12 bg-blue-200 rounded-xl flex items-center justify-center">
-                                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 19v-1.5a2.5 2.5 0 012.5-2.5h13A2.5 2.5 0 0121 17.5V19"></path>
+                                <svg class="w-6 h-6 text-blue-600" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+                                    <g>
+                                        <path d="M128 352.576V352a288 288 0 0 1 491.072-204.224 192 192 0 0 1 274.24 204.48 64 64 0 0 1 57.216 74.24C921.6 600.512 850.048 710.656 736 756.992V800a96 96 0 0 1-96 96H384a96 96 0 0 1-96-96v-43.008c-114.048-46.336-185.6-156.48-214.528-330.496A64 64 0 0 1 128 352.64zm64-.576h64a160 160 0 0 1 320 0h64a224 224 0 0 0-448 0zm128 0h192a96 96 0 0 0-192 0zm439.424 0h68.544A128.256 128.256 0 0 0 704 192c-15.36 0-29.952 2.688-43.52 7.616 11.328 18.176 20.672 37.76 27.84 58.304A64.128 64.128 0 0 1 759.424 352zM672 768H352v32a32 32 0 0 0 32 32h256a32 32 0 0 0 32-32v-32zm-342.528-64h365.056c101.504-32.64 165.76-124.928 192.896-288H136.576c27.136 163.072 91.392 255.36 192.896 288z"></path>
+                                    </g>
                                 </svg>
                             </div>
                         </div>
@@ -155,13 +156,19 @@
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
                             <div class="w-12 h-12 bg-orange-200 rounded-xl flex items-center justify-center">
-                                <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4m-6 0h6m-6 0a1 1 0 00-1 1v10a1 1 0 001 1h6a1 1 0 001-1V8a1 1 0 00-1-1"></path>
+                                <svg class="w-6 h-6 text-orange-600" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
+                                     fill="currentColor"
+                                     stroke="currentColor"
+                                     stroke-width="1.5"
+                                >
+                                    <g>
+                                        <path d="M24 14a5 5 0 0 1-5 5h-1v-1h1a3.99 3.99 0 0 0 .623-7.934l-.79-.124-.052-.798a5.293 5.293 0 0 0-10.214-1.57L8.17 8.59l-.977-.483A2.277 2.277 0 0 0 6.19 7.87a2.18 2.18 0 0 0-1.167.339 2.205 2.205 0 0 0-.98 1.395l-.113.505-.476.2A4 4 0 0 0 5 18h4v1H5a5 5 0 0 1-1.934-9.611 3.21 3.21 0 0 1 1.422-2.024A3.17 3.17 0 0 1 6.19 6.87a3.268 3.268 0 0 1 1.446.34 6.293 6.293 0 0 1 12.143 1.867A4.988 4.988 0 0 1 24 14zm-4.637-1.07L13.5 18.793l-2.863-2.863-.707.707 3.57 3.57 6.57-6.57z"></path>
+                                    </g>
                                 </svg>
                             </div>
                         </div>
                         <div class="ml-4">
-                            <div class="text-2xl font-bold text-orange-800">{{ $user->created_at->diffInDays(now()) }}</div>
+                            <div class="text-2xl font-bold text-orange-800">{{ $user->created_at->diffForHumans() }}</div>
                             <div class="text-sm font-medium text-orange-600">Days Active</div>
                         </div>
                     </div>
@@ -177,8 +184,10 @@
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center">
                                     <div class="w-8 h-8 bg-green-200 rounded-lg flex items-center justify-center mr-3">
-                                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 19v-1.5a2.5 2.5 0 012.5-2.5h13A2.5 2.5 0 0121 17.5V19"></path>
+                                        <svg class="w-5 h-5 text-green-600" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+                                            <g>
+                                                <path d="M128 352.576V352a288 288 0 0 1 491.072-204.224 192 192 0 0 1 274.24 204.48 64 64 0 0 1 57.216 74.24C921.6 600.512 850.048 710.656 736 756.992V800a96 96 0 0 1-96 96H384a96 96 0 0 1-96-96v-43.008c-114.048-46.336-185.6-156.48-214.528-330.496A64 64 0 0 1 128 352.64zm64-.576h64a160 160 0 0 1 320 0h64a224 224 0 0 0-448 0zm128 0h192a96 96 0 0 0-192 0zm439.424 0h68.544A128.256 128.256 0 0 0 704 192c-15.36 0-29.952 2.688-43.52 7.616 11.328 18.176 20.672 37.76 27.84 58.304A64.128 64.128 0 0 1 759.424 352zM672 768H352v32a32 32 0 0 0 32 32h256a32 32 0 0 0 32-32v-32zm-342.528-64h365.056c101.504-32.64 165.76-124.928 192.896-288H136.576c27.136 163.072 91.392 255.36 192.896 288z"></path>
+                                            </g>
                                         </svg>
                                     </div>
                                     <div>
