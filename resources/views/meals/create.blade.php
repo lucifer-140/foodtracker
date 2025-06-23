@@ -159,11 +159,10 @@
     </div>
 
     <script>
-        // --- DATA FROM CONTROLLER ---
+
         const allIngredients = @json($ingredientsJson);
         const allUnits = @json($unitsJson);
 
-        // --- ELEMENT REFERENCES ---
         const ingredientsContainer = document.getElementById('ingredients-container');
         const emptyState = document.getElementById('empty-state');
         const imageInput = document.getElementById('image');
@@ -171,9 +170,6 @@
         const imagePreview = document.getElementById('image-preview');
         let ingredientIndex = 0;
 
-        // --- CORE FUNCTIONS ---
-
-        // Animate the numbers in the summary for a nice visual effect
         function animateNumber(elementId, newValue, suffix = '') {
             const element = document.getElementById(elementId);
             if (!element) return;
@@ -195,7 +191,6 @@
             }, duration / steps);
         }
 
-        // Calculate totals from all ingredient rows
         function updateTotals() {
             let totals = { calories: 0, protein: 0, fat: 0, carbs: 0 };
             const ingredientRows = ingredientsContainer.querySelectorAll('.ingredient-row');
@@ -228,13 +223,12 @@
             animateNumber('total-carbs', totals.carbs, 'g');
         }
 
-        // Show or hide the "No ingredients" message
         function toggleEmptyState() {
             const hasIngredients = ingredientsContainer.children.length > 0;
             emptyState.classList.toggle('hidden', hasIngredients);
         }
 
-        // Add a new ingredient row to the container
+
         function addIngredientRow() {
             const index = ingredientIndex++;
             const newRow = document.createElement('div');
@@ -243,7 +237,7 @@
             newRow.style.transform = 'translateY(10px)';
             newRow.setAttribute('data-ingredient-row', index);
 
-            // This is the complete HTML for your new ingredient row design
+
             newRow.innerHTML = `
             <div class="flex items-end space-x-4">
                 <div class="flex-1">
@@ -288,7 +282,6 @@
             initializeDropdown(newRow);
             toggleEmptyState();
 
-            // Entrance animation
             setTimeout(() => {
                 newRow.style.transition = 'all 0.3s ease-out';
                 newRow.style.opacity = '1';
@@ -296,7 +289,6 @@
             }, 10);
         }
 
-        // Make a newly added ingredient row interactive
         function initializeDropdown(context) {
             const dropdownButton = context.querySelector('.dropdown-button');
             const dropdownMenu = context.querySelector('.dropdown-menu');
@@ -349,9 +341,6 @@
             });
         }
 
-        // --- GLOBAL EVENT LISTENERS ---
-
-        // Listen for any input changes to update totals
         ingredientsContainer.addEventListener('input', (e) => {
             if (e.target.matches('input[type="number"]')) updateTotals();
         });
@@ -359,19 +348,16 @@
             if (e.target.matches('input[type="hidden"], select')) updateTotals();
         });
 
-        // Initialize the page state when it loads
         document.addEventListener('DOMContentLoaded', () => {
-            toggleEmptyState();
+            addIngredientRow();
         });
 
-        // Close dropdowns if clicking outside of them
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.dropdown-menu') && !e.target.closest('.dropdown-button')) {
                 document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.add('hidden'));
             }
         });
 
-        // Handle the image preview
         imageInput.addEventListener('change', function(event) {
             const file = event.target.files[0];
             if (file) {

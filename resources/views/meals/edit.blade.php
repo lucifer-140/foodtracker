@@ -150,19 +150,17 @@
     </div>
 
     <script>
-        // --- DATA FROM CONTROLLER ---
+
         const allIngredients = @json($ingredientsJson);
         const allUnits = @json($unitsJson);
 
-        // --- ELEMENT REFERENCES ---
         const ingredientsContainer = document.getElementById('ingredients-container');
         const emptyState = document.getElementById('empty-state');
         const imageInput = document.getElementById('image');
         const imagePlaceholder = document.getElementById('image-placeholder');
         const imagePreview = document.getElementById('image-preview');
-        let ingredientIndex = {{ $meal->ingredients->count() }}; // Start index after existing ingredients
+        let ingredientIndex = {{ $meal->ingredients->count() }};
 
-        // --- CORE FUNCTIONS ---
 
         function animateNumber(elementId, newValue, suffix = '') {
             const element = document.getElementById(elementId);
@@ -339,8 +337,6 @@
             }
         }
 
-        // --- GLOBAL EVENT LISTENERS ---
-
         ingredientsContainer.addEventListener('input', (e) => {
             if (e.target.matches('input[type="number"]')) updateTotals();
         });
@@ -349,12 +345,10 @@
         });
 
         document.addEventListener('DOMContentLoaded', () => {
-            // This is the key part for the edit page:
-            // Initialize all the rows that were pre-rendered by Blade
+
             document.querySelectorAll('.ingredient-row').forEach(row => {
                 initializeDropdown(row);
             });
-            // And check if the empty state should be shown
             toggleEmptyState();
         });
 
@@ -364,7 +358,6 @@
             }
         });
 
-        // Handle the image preview
         if(imageInput){
             imageInput.addEventListener('change', function(event) {
                 const file = event.target.files[0];

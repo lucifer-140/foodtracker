@@ -120,72 +120,47 @@
                                     </p>
                                 </div>
 
-                                <!-- Meal Image -->
                                 <div class="relative mb-4">
                                     @if ($meal->image_path)
                                         <img class="w-full h-64 object-cover rounded-xl group-hover:scale-[1.02] transition-transform duration-300"
                                              src="{{ asset('storage/' . $meal->image_path) }}"
                                              alt="{{ $meal->name }}">
                                     @else
-                                        <div class="w-full h-64 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center group-hover:from-gray-200 group-hover:to-gray-300 transition-all duration-300">
+                                        <div class="w-full h-64 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center">
                                             <div class="text-center">
-                                                <svg class="w-16 h-16 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M3 19v-1.5a2.5 2.5 0 012.5-2.5h13A2.5 2.5 0 0121 17.5V19m-18 0a2.5 2.5 0 002.5 2.5h13A2.5 2.5 0 0021 19m-18 0h18M9 12a4 4 0 100-8 4 4 0 000 8z"></path>
-                                                </svg>
+                                                <svg class="w-16 h-16 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M3 19v-1.5a2.5 2.5 0 012.5-2.5h13A2.5 2.5 0 0121 17.5V19m-18 0a2.5 2.5 0 002.5 2.5h13A2.5 2.5 0 0021 19m-18 0h18M9 12a4 4 0 100-8 4 4 0 000 8z"></path></svg>
                                                 <p class="text-gray-500 text-sm">{{ $meal->name }}</p>
                                             </div>
                                         </div>
                                     @endif
 
-                                    <!-- Nutrition Overlay -->
-                                    @if(isset($meal->total_calories))
-                                        <div class="absolute top-4 right-4 bg-black/70 backdrop-blur-sm text-white px-3 py-2 rounded-lg text-sm font-medium">
-                                            {{ round($meal->total_calories) }} cal
-                                        </div>
-                                    @endif
+                                    <div class="absolute top-4 right-4 bg-black/70 backdrop-blur-sm text-white px-3 py-2 rounded-lg text-sm font-medium">
+                                        {{ round($meal->total_calories) }} cal
+                                    </div>
                                 </div>
 
-                                <!-- Quick Nutrition Stats -->
                                 <div class="grid grid-cols-4 gap-3 mb-4">
-                                    @php
-                                        // Calculate nutrition totals for this meal
-                                        $totals = ['calories' => 0, 'protein' => 0, 'fat' => 0, 'carbs' => 0];
-                                        foreach ($meal->ingredients as $ingredient) {
-                                            $unitData = $units[$ingredient->pivot->unit_id] ?? null;
-                                            if ($unitData) {
-                                                $conversionFactor = $unitData->conversion_factor;
-                                                $quantityInGrams = $ingredient->pivot->quantity * $conversionFactor;
-                                                $totals['calories'] += ($ingredient->calories_per_100g / 100) * $quantityInGrams;
-                                                $totals['protein'] += ($ingredient->protein_per_100g / 100) * $quantityInGrams;
-                                                $totals['fat'] += ($ingredient->fat_per_100g / 100) * $quantityInGrams;
-                                                $totals['carbs'] += ($ingredient->carbs_per_100g / 100) * $quantityInGrams;
-                                            }
-                                        }
-                                    @endphp
 
                                     <div class="bg-blue-50 p-3 rounded-lg text-center">
                                         <div class="text-sm font-medium text-blue-600">Calories</div>
-                                        <div class="text-lg font-bold text-blue-800">{{ round($totals['calories']) }}</div>
+                                        <div class="text-lg font-bold text-blue-800">{{ round($meal->total_calories) }}</div>
                                     </div>
                                     <div class="bg-green-50 p-3 rounded-lg text-center">
                                         <div class="text-sm font-medium text-green-600">Protein</div>
-                                        <div class="text-lg font-bold text-green-800">{{ round($totals['protein']) }}g</div>
+                                        <div class="text-lg font-bold text-green-800">{{ round($meal->total_protein) }}g</div>
                                     </div>
                                     <div class="bg-yellow-50 p-3 rounded-lg text-center">
                                         <div class="text-sm font-medium text-yellow-600">Fat</div>
-                                        <div class="text-lg font-bold text-yellow-800">{{ round($totals['fat']) }}g</div>
+                                        <div class="text-lg font-bold text-yellow-800">{{ round($meal->total_fat) }}g</div>
                                     </div>
                                     <div class="bg-red-50 p-3 rounded-lg text-center">
                                         <div class="text-sm font-medium text-red-600">Carbs</div>
-                                        <div class="text-lg font-bold text-red-800">{{ round($totals['carbs']) }}g</div>
+                                        <div class="text-lg font-bold text-red-800">{{ round($meal->total_carbs) }}g</div>
                                     </div>
                                 </div>
 
-                                <!-- Ingredients Preview -->
                                 <div class="flex items-center text-sm text-gray-500">
-                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                                    </svg>
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                                     {{ $meal->ingredients->count() }} ingredients
                                     @if($meal->ingredients->count() > 0)
                                         • {{ $meal->ingredients->take(3)->pluck('name')->join(', ') }}

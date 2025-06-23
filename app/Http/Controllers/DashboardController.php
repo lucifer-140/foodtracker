@@ -22,7 +22,7 @@ class DashboardController extends Controller
 
         $todaysMeals = $user->meals()
             ->whereDate('created_at', today())
-            ->with('ingredients') // Eager load for efficiency
+            ->with('ingredients')
             ->get();
 
 
@@ -44,7 +44,8 @@ class DashboardController extends Controller
         }
 
 
-        $allMeals = $user->meals()->latest()->get();
+        $allMeals = $user->meals()->latest()->paginate(12);
+
 
         return view('dashboard', [
             'meals' => $allMeals,
