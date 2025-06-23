@@ -12,17 +12,14 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class MealController extends Controller
 {
-
     use AuthorizesRequests;
 
     public function create()
     {
         $ingredients = Ingredient::orderBy('name')->get();
         $units = Unit::all();
-
         $unitsJson = $units->keyBy('id');
         $ingredientsJson = $ingredients->keyBy('id');
-
 
         return view('meals.create', [
             'ingredients' => $ingredients,
@@ -39,14 +36,12 @@ class MealController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'ingredients' => 'required|array|min:1',
             'ingredients.*.id' => 'required|exists:ingredients,id',
-            'ingredients.*.quantity' => 'required|integer|min:1',
+            'ingredients.*.quantity' => 'required|numeric|min:0.1',
             'ingredients.*.unit_id' => 'required|exists:units,id',
         ]);
 
         DB::transaction(function () use ($request, $validated) {
-
             $imagePath = null;
-
             if ($request->hasFile('image')) {
                 $imagePath = $request->file('image')->store('meal-images', 'public');
             }
@@ -69,62 +64,28 @@ class MealController extends Controller
 
     public function show(Meal $meal)
     {
-
         $this->authorize('view', $meal);
 
         $meal->load('ingredients');
-
-        $units = \App\Models\Unit::all()->keyBy('id');
-
-
-        $total = [
-            'calories' => 0,
-            'protein' => 0,
-            'fat' => 0,
-            'carbs' => 0,
-        ];
-
+        $units = Unit::all()->keyBy('id');
+        $total = ['calories' => 0, 'protein' => 0, 'fat' => 0, 'carbs' => 0];
 
         foreach ($meal->ingredients as $ingredient) {
-
             $quantity = $ingredient->pivot->quantity;
             $unitId = $ingredient->pivot->unit_id;
-
-
-            $conversionFactor = 1.0;
-            if (isset($units[$unitId])) {
-                $conversionFactor = $units[$unitId]->conversion_factor;
-            }
-
-
+            $conversionFactor = $units[$unitId]->conversion_factor ?? 1.0;
             $quantityInGrams = $quantity * $conversionFactor;
-
-
             $total['calories'] += ($ingredient->calories_per_100g / 100) * $quantityInGrams;
             $total['protein']  += ($ingredient->protein_per_100g / 100) * $quantityInGrams;
             $total['fat']      += ($ingredient->fat_per_100g / 100) * $quantityInGrams;
             $total['carbs']    += ($ingredient->carbs_per_100g / 100) * $quantityInGrams;
         }
 
-
         return view('meals.show', [
             'meal' => $meal,
             'total' => $total,
             'units' => $units,
         ]);
-    }
-
-    public function destroy(Meal $meal)
-    {
-        $this->authorize('delete', $meal);
-
-        if ($meal->image_path) {
-            Storage::disk('public')->delete($meal->image_path);
-        }
-
-        $meal->delete();
-
-        return redirect()->route('dashboard')->with('success', 'Meal deleted successfully!');
     }
 
     public function edit(Meal $meal)
@@ -134,24 +95,20 @@ class MealController extends Controller
         $meal->load('ingredients');
         $ingredients = Ingredient::orderBy('name')->get();
         $ingredientsJson = $ingredients->keyBy('id');
-
         $units = Unit::all();
         $unitsJson = $units->keyBy('id');
-
-
         $total = ['calories' => 0, 'protein' => 0, 'fat' => 0, 'carbs' => 0];
+
         foreach ($meal->ingredients as $ingredient) {
             $quantity = $ingredient->pivot->quantity;
             $unitId = $ingredient->pivot->unit_id;
             $conversionFactor = $unitsJson[$unitId]->conversion_factor ?? 1.0;
             $quantityInGrams = $quantity * $conversionFactor;
-
             $total['calories'] += ($ingredient->calories_per_100g / 100) * $quantityInGrams;
             $total['protein']  += ($ingredient->protein_per_100g / 100) * $quantityInGrams;
             $total['fat']      += ($ingredient->fat_per_100g / 100) * $quantityInGrams;
             $total['carbs']    += ($ingredient->carbs_per_100g / 100) * $quantityInGrams;
         }
-
 
         return view('meals.edit', [
             'meal' => $meal,
@@ -172,25 +129,21 @@ class MealController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'ingredients' => 'required|array|min:1',
             'ingredients.*.id' => 'required|exists:ingredients,id',
-            'ingredients.*.quantity' => 'required|integer|min:1',
+            'ingredients.*.quantity' => 'required|numeric|min:0.1',
             'ingredients.*.unit_id' => 'required|exists:units,id',
+        ], [
+            'ingredients.min' => 'A meal must have at least one ingredient. Please add an ingredient or delete the meal.',
         ]);
 
         DB::transaction(function () use ($request, $meal, $validated) {
             $imagePath = $meal->image_path;
-
             if ($request->hasFile('image')) {
                 if ($meal->image_path) {
                     Storage::disk('public')->delete($meal->image_path);
                 }
                 $imagePath = $request->file('image')->store('meal-images', 'public');
             }
-
-            $meal->update([
-                'name' => $validated['name'],
-                'image_path' => $imagePath,
-            ]);
-
+            $meal->update(['name' => $validated['name'], 'image_path' => $imagePath]);
             $ingredientsToSync = [];
             foreach ($validated['ingredients'] as $ingredientData) {
                 $ingredientsToSync[$ingredientData['id']] = [
@@ -198,11 +151,53 @@ class MealController extends Controller
                     'unit_id' => $ingredientData['unit_id']
                 ];
             }
-
             $meal->ingredients()->sync($ingredientsToSync);
         });
 
         return redirect()->route('meals.show', $meal)->with('success', 'Meal updated successfully!');
+    }
+
+    public function destroy(Meal $meal)
+    {
+        $this->authorize('delete', $meal);
+
+        if ($meal->image_path) {
+            Storage::disk('public')->delete($meal->image_path);
+        }
+        $meal->delete();
+
+        return redirect()->route('dashboard')->with('success', 'Meal deleted successfully!');
+    }
+
+    public function archive()
+    {
+        // Fetch all units once for efficient calculation
+        $units = \App\Models\Unit::all()->keyBy('id');
+
+        // Fetch the user's meals, paginated, and eager load the ingredients
+        $meals = auth()->user()->meals()
+            ->with('ingredients')
+            ->latest()
+            ->paginate(15);
+
+        // Calculate the total calories for each meal in the paginated result
+        $meals->each(function ($meal) use ($units) {
+            $totalCalories = 0;
+            foreach ($meal->ingredients as $ingredient) {
+                $quantity = $ingredient->pivot->quantity;
+                $unitId = $ingredient->pivot->unit_id;
+                $conversionFactor = $units[$unitId]->conversion_factor ?? 1.0;
+                $quantityInGrams = $quantity * $conversionFactor;
+                $totalCalories += ($ingredient->calories_per_100g / 100) * $quantityInGrams;
+            }
+            // Attach the calculated total as a new property on the meal object
+            $meal->total_calories = round($totalCalories);
+        });
+
+        // Return a NEW view file
+        return view('meals.archive', [
+            'meals' => $meals,
+        ]);
     }
 
 }

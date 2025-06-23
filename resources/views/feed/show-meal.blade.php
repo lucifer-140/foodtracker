@@ -1,71 +1,297 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <div>
-                <h2 class="text-2xl font-bold text-gray-800">
-                    {{ $meal->name }}
-                </h2>
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    A meal by {{ $meal->user->name }}
-                </p>
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+            <div class="flex items-center space-x-4">
+                <!-- User Avatar -->
+                <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center shadow-md">
+                    <span class="text-white font-semibold text-lg">
+                        {{ strtoupper(substr($meal->user->name, 0, 1)) }}
+                    </span>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-800 flex items-center">
+                        <svg class="w-6 h-6 mr-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 19v-1.5a2.5 2.5 0 012.5-2.5h13A2.5 2.5 0 0121 17.5V19"></path>
+                        </svg>
+                        {{ $meal->name }}
+                    </h2>
+                    <div class="flex items-center mt-1 text-sm text-gray-500 space-x-4">
+                        <div class="flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                            Shared by {{ $meal->user->name }}
+                        </div>
+                        <div class="flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            {{ $meal->created_at->diffForHumans() }}
+                        </div>
+                    </div>
+                </div>
             </div>
-            <a href="{{ route('feed.index') }}" class="text-sm text-gray-600 hover:text-gray-900 underline">
-                &larr; Back to Feed
-            </a>
+
+            <div class="flex items-center space-x-3">
+                <a href="{{ route('feed.index') }}"
+                   class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition-colors">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    Back to Feed
+                </a>
+
+                <a href="{{ route('users.show', $meal->user) }}"
+                   class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm hover:shadow-md transform hover:scale-105">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                    View Profile
+                </a>
+            </div>
         </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-
+    <div class="py-8">
+        <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Main Content -->
+                <div class="lg:col-span-2 space-y-8">
+                    <!-- Meal Image -->
                     @if ($meal->image_path)
-                        <img class="w-full h-96 object-cover rounded-lg mb-6" src="{{ asset('storage/' . $meal->image_path) }}" alt="{{ $meal->name }}">
+                        <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+                            <div class="relative">
+                                <img class="w-full h-80 object-cover" src="{{ asset('storage/' . $meal->image_path) }}" alt="{{ $meal->name }}">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                                <div class="absolute bottom-4 left-4 right-4">
+                                    <div class="flex items-center justify-between">
+                                        <div class="bg-white/90 backdrop-blur-sm rounded-lg px-3 py-2">
+                                            <div class="text-sm font-medium text-gray-800">{{ round($total['calories']) }} calories</div>
+                                        </div>
+                                        <div class="bg-white/90 backdrop-blur-sm rounded-lg px-3 py-2">
+                                            <div class="text-sm font-medium text-gray-800">{{ $meal->created_at->format('g:i A') }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @else
+                        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
+                            <div class="text-center">
+                                <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 19v-1.5a2.5 2.5 0 012.5-2.5h13A2.5 2.5 0 0121 17.5V19"></path>
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg font-medium text-gray-900 mb-2">{{ $meal->name }}</h3>
+                                <p class="text-gray-500">No image available for this meal</p>
+                            </div>
+                        </div>
                     @endif
 
-                    <h3 class="text-2xl font-semibold mb-4">Nutritional Summary</h3>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 text-center">
-                        <div class="bg-blue-50 p-4 rounded-lg shadow">
-                            <div class="text-sm font-medium text-blue-600">Calories</div>
-                            <div class="text-3xl font-bold text-blue-800">{{ round($total['calories']) }}</div>
-                        </div>
-                        <div class="bg-green-50 p-4 rounded-lg shadow">
-                            <div class="text-sm font-medium text-green-600">Protein</div>
-                            <div class="text-3xl font-bold text-green-800">{{ round($total['protein']) }}g</div>
-                        </div>
-                        <div class="bg-yellow-50 p-4 rounded-lg shadow">
-                            <div class="text-sm font-medium text-yellow-600">Fat</div>
-                            <div class="text-3xl font-bold text-yellow-800">{{ round($total['fat']) }}g</div>
-                        </div>
-                        <div class="bg-red-50 p-4 rounded-lg shadow">
-                            <div class="text-sm font-medium text-red-600">Carbs</div>
-                            <div class="text-3xl font-bold text-red-800">{{ round($total['carbs']) }}g</div>
+                    <!-- Nutritional Breakdown -->
+                    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                            Nutritional Breakdown
+                        </h3>
+
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border border-blue-200 text-center transform hover:scale-105 transition-transform">
+                                <div class="w-12 h-12 bg-blue-200 rounded-full flex items-center justify-center mx-auto mb-2">
+                                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                    </svg>
+                                </div>
+                                <div class="text-sm font-medium text-blue-600 mb-1">Calories</div>
+                                <div class="text-2xl font-bold text-blue-800">{{ round($total['calories']) }}</div>
+                                <div class="text-xs text-blue-500">kcal</div>
+                            </div>
+
+                            <div class="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-xl border border-green-200 text-center transform hover:scale-105 transition-transform">
+                                <div class="w-12 h-12 bg-green-200 rounded-full flex items-center justify-center mx-auto mb-2">
+                                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                    </svg>
+                                </div>
+                                <div class="text-sm font-medium text-green-600 mb-1">Protein</div>
+                                <div class="text-2xl font-bold text-green-800">{{ round($total['protein']) }}</div>
+                                <div class="text-xs text-green-500">grams</div>
+                            </div>
+
+                            <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 p-4 rounded-xl border border-yellow-200 text-center transform hover:scale-105 transition-transform">
+                                <div class="w-12 h-12 bg-yellow-200 rounded-full flex items-center justify-center mx-auto mb-2">
+                                    <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"></path>
+                                    </svg>
+                                </div>
+                                <div class="text-sm font-medium text-yellow-600 mb-1">Fat</div>
+                                <div class="text-2xl font-bold text-yellow-800">{{ round($total['fat']) }}</div>
+                                <div class="text-xs text-yellow-500">grams</div>
+                            </div>
+
+                            <div class="bg-gradient-to-br from-red-50 to-red-100 p-4 rounded-xl border border-red-200 text-center transform hover:scale-105 transition-transform">
+                                <div class="w-12 h-12 bg-red-200 rounded-full flex items-center justify-center mx-auto mb-2">
+                                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                    </svg>
+                                </div>
+                                <div class="text-sm font-medium text-red-600 mb-1">Carbs</div>
+                                <div class="text-2xl font-bold text-red-800">{{ round($total['carbs']) }}</div>
+                                <div class="text-xs text-red-500">grams</div>
+                            </div>
                         </div>
                     </div>
 
-                    <h3 class="text-2xl font-semibold mb-4">Ingredients</h3>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                            <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ingredient</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
-                            </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                            @foreach ($meal->ingredients as $ingredient)
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        {{ $ingredient->name }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {{ $ingredient->pivot->quantity }} {{ $units[$ingredient->pivot->unit_id]->abbreviation }}
-                                    </td>
-                                </tr>
-                            @endforeach
-                            </tbody>
-                        </table>
+                    <!-- Ingredients List -->
+                    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+                        <div class="bg-gray-50 px-6 py-4 border-b border-gray-100">
+                            <h3 class="text-xl font-semibold text-gray-800 flex items-center">
+                                <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                </svg>
+                                Ingredients ({{ $meal->ingredients->count() }})
+                            </h3>
+                            <p class="text-sm text-gray-600 mt-1">Complete list of ingredients used in this meal</p>
+                        </div>
+
+                        <div class="p-6">
+                            <div class="space-y-4">
+                                @foreach ($meal->ingredients as $index => $ingredient)
+                                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+                                        <div class="flex items-center space-x-4">
+                                            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-600 font-semibold text-sm">
+                                                {{ $index + 1 }}
+                                            </div>
+                                            <div>
+                                                <h4 class="font-medium text-gray-900">{{ $ingredient->name }}</h4>
+                                                <p class="text-sm text-gray-500">
+                                                    {{ $ingredient->pivot->quantity }} {{ $units[$ingredient->pivot->unit_id]->abbreviation }}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        @php
+                                            $unitData = $units[$ingredient->pivot->unit_id];
+                                            $conversionFactor = $unitData->conversion_factor;
+                                            $quantityInGrams = $ingredient->pivot->quantity * $conversionFactor;
+                                            $ingredientCalories = ($ingredient->calories_per_100g / 100) * $quantityInGrams;
+                                        @endphp
+
+                                        <div class="text-right">
+                                            <div class="text-sm font-medium text-gray-900">{{ round($ingredientCalories) }} cal</div>
+                                            <div class="text-xs text-gray-500">{{ round($quantityInGrams) }}g</div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="lg:col-span-1 space-y-6">
+                    <!-- User Info Card -->
+                    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                            Shared By
+                        </h3>
+                        <div class="flex items-center space-x-4 mb-4">
+                            <div class="w-16 h-16 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center shadow-md">
+                                <span class="text-white font-semibold text-xl">
+                                    {{ strtoupper(substr($meal->user->name, 0, 1)) }}
+                                </span>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-900">{{ $meal->user->name }}</h4>
+                                <p class="text-sm text-gray-500">Nutrition enthusiast</p>
+                            </div>
+                        </div>
+                        <a href="{{ route('users.show', $meal->user) }}"
+                           class="w-full inline-flex items-center justify-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                            View Full Profile
+                        </a>
+                    </div>
+
+                    <!-- Meal Stats -->
+                    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Meal Details
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">Posted</span>
+                                <span class="text-sm font-medium text-gray-900">{{ $meal->created_at->format('M j, Y') }}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">Time</span>
+                                <span class="text-sm font-medium text-gray-900">{{ $meal->created_at->format('g:i A') }}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">Ingredients</span>
+                                <span class="text-sm font-medium text-gray-900">{{ $meal->ingredients->count() }} items</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">Total Weight</span>
+                                <span class="text-sm font-medium text-gray-900">
+                                    @php
+                                        $totalWeight = 0;
+                                        foreach ($meal->ingredients as $ingredient) {
+                                            $unitData = $units[$ingredient->pivot->unit_id];
+                                            $totalWeight += $ingredient->pivot->quantity * $unitData->conversion_factor;
+                                        }
+                                    @endphp
+                                    {{ round($totalWeight) }}g
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Social Actions -->
+                    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                            </svg>
+                            Actions
+                        </h3>
+                        <div class="space-y-3">
+                            <button class="w-full flex items-center justify-center px-4 py-2 bg-red-100 hover:bg-red-200 text-red-700 text-sm font-medium rounded-lg transition-colors">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                </svg>
+                                Like This Meal
+                            </button>
+                            <button class="w-full flex items-center justify-center px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 text-sm font-medium rounded-lg transition-colors">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"></path>
+                                </svg>
+                                Share Meal
+                            </button>
+                            <button class="w-full flex items-center justify-center px-4 py-2 bg-purple-100 hover:bg-purple-200 text-purple-700 text-sm font-medium rounded-lg transition-colors">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+                                </svg>
+                                Save Recipe
+                            </button>
+                            <button class="w-full flex items-center justify-center px-4 py-2 bg-green-100 hover:bg-green-200 text-green-700 text-sm font-medium rounded-lg transition-colors">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                </svg>
+                                Copy to My Meals
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

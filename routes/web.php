@@ -3,19 +3,19 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MealController;
+use App\Http\Controllers\DashboardController;
+
+//Route::get('/ping', function () {
+//    return 'Pong!';
+//});
+
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-
-    $meals = auth()->user()->meals()->latest()->get();
-
-    return view('dashboard', [
-        'meals' => $meals
-    ]);
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -30,6 +30,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/meals/{meal}', [MealController::class, 'destroy'])->name('meals.destroy');
     Route::get('/meals/{meal}/edit', [MealController::class, 'edit'])->name('meals.edit');
     Route::put('/meals/{meal}', [MealController::class, 'update'])->name('meals.update');
+    Route::get('/meal-archive', [MealController::class, 'archive'])->name('meals.archive');
+
+
 
     Route::get('/users', [\App\Http\Controllers\FriendshipController::class, 'indexUsers'])->name('users.index');
     Route::get('/users/{user}', [\App\Http\Controllers\FriendshipController::class, 'showUserProfile'])->name('users.show');

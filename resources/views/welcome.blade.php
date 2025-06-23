@@ -370,7 +370,6 @@
 
         <div class="border-t border-gray-800 pt-8 flex flex-col sm:flex-row justify-between items-center">
             <p>&copy; {{ date('Y') }} FoodTracker. All rights reserved.</p>
-            <p class="text-sm mt-4 sm:mt-0">Made with ❤️ for healthier living</p>
         </div>
     </div>
 </footer>

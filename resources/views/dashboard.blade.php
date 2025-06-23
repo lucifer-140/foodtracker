@@ -101,7 +101,7 @@
                         </div>
                     </a>
 
-                    <a href="#" class="group bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 hover:border-orange-200 transform hover:-translate-y-1">
+                    <a href="{{ route('meals.archive') }}" class="group bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 hover:border-orange-200 transform hover:-translate-y-1">
                         <div class="flex items-center">
                             <div class="flex-shrink-0">
                                 <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center group-hover:bg-orange-200 transition-colors">
