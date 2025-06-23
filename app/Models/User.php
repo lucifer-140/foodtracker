@@ -118,4 +118,10 @@ class User extends Authenticatable
             $query->where('requester_id', $user->id)->where('addressee_id', $this->id);
         })->first();
     }
+
+    public function goal(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Goal::class);
+    }
+
 }

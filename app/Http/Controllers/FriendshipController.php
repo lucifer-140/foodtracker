@@ -24,9 +24,7 @@ class FriendshipController extends Controller
         ]);
     }
 
-    /**
-     * Display a listing of all users to find friends.
-     */
+
     public function indexUsers()
     {
         $users = User::where('id', '!=', auth()->id())->latest()->paginate(20);

@@ -69,7 +69,7 @@
                         </div>
                     </a>
 
-                    <a href="#" class="group bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 hover:border-blue-200 transform hover:-translate-y-1">
+                    <a href="{{ route('reports.index') }}" class="group bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 hover:border-blue-200 transform hover:-translate-y-1">
                         <div class="flex items-center">
                             <div class="flex-shrink-0">
                                 <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors">
@@ -85,7 +85,7 @@
                         </div>
                     </a>
 
-                    <a href="#" class="group bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 hover:border-purple-200 transform hover:-translate-y-1">
+                    <a href="{{ route('goals.edit') }}" class="group bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 hover:border-purple-200 transform hover:-translate-y-1">
                         <div class="flex items-center">
                             <div class="flex-shrink-0">
                                 <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition-colors">
@@ -131,7 +131,7 @@
                             Recent Activity
                         </h3>
                         <div class="space-y-4">
-                            @forelse ($meals->take(3) as $meal)
+                            @forelse ($recentMeals as $meal)
                                 <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                                     <div class="flex-shrink-0">
                                         @if ($meal->image_path)
@@ -162,52 +162,62 @@
                 <div class="lg:col-span-2">
                     <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
                         <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                            <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                            </svg>
+                            <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                             Today's Progress
                         </h3>
 
                         @php
-                            $todaysMeals = $meals->where('created_at', '>=', today())->count();
-                            $weeklyGoal = 21; // 3 meals per day * 7 days
-                            $dailyGoal = 3;
-                            $progressPercentage = $todaysMeals > 0 ? min(($todaysMeals / $dailyGoal) * 100, 100) : 0;
+                            // Set default goals if the user hasn't set any
+                            $calorieGoal = $goal->daily_calories ?? 2000;
+                            $proteinGoal = $goal->daily_protein ?? 120;
+                            $fatGoal = $goal->daily_fat ?? 60;
+                            $carbGoal = $goal->daily_carbs ?? 250;
+
+                            // Calculate percentages, ensuring we don't divide by zero
+                            $calorieProgress = $calorieGoal > 0 ? min(($todaysTotals['calories'] / $calorieGoal) * 100, 100) : 0;
+                            $proteinProgress = $proteinGoal > 0 ? min(($todaysTotals['protein'] / $proteinGoal) * 100, 100) : 0;
+                            $fatProgress = $fatGoal > 0 ? min(($todaysTotals['fat'] / $fatGoal) * 100, 100) : 0;
+                            $carbProgress = $carbGoal > 0 ? min(($todaysTotals['carbs'] / $carbGoal) * 100, 100) : 0;
                         @endphp
 
                         <div class="space-y-6">
-                            <!-- Daily Goal Progress -->
                             <div>
-                                <div class="flex justify-between items-center mb-2">
-                                    <span class="text-sm font-medium text-gray-700">Daily Meals Goal</span>
-                                    <span class="text-sm text-gray-500">{{ $todaysMeals }}/{{ $dailyGoal }}</span>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-sm font-medium text-gray-700">Calories</span>
+                                    <span class="text-sm text-gray-500">{{ round($todaysTotals['calories']) }} / {{ $calorieGoal }} kcal</span>
                                 </div>
-                                <div class="w-full bg-gray-200 rounded-full h-3">
-                                    <div class="bg-gradient-to-r from-green-400 to-green-600 h-3 rounded-full transition-all duration-500 ease-out" style="width: {{ $progressPercentage }}%"></div>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div class="bg-blue-600 h-2.5 rounded-full" style="width: {{ $calorieProgress }}%"></div>
                                 </div>
                             </div>
 
-                            <!-- Weekly Streak -->
                             <div>
-                                <div class="flex justify-between items-center mb-2">
-                                    <span class="text-sm font-medium text-gray-700">Weekly Streak</span>
-                                    <span class="text-sm text-gray-500">{{ $meals->where('created_at', '>=', now()->startOfWeek())->count() }} meals this week</span>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-sm font-medium text-gray-700">Protein</span>
+                                    <span class="text-sm text-gray-500">{{ round($todaysTotals['protein']) }} / {{ $proteinGoal }} g</span>
                                 </div>
-                                <div class="grid grid-cols-7 gap-1">
-                                    @for ($i = 0; $i < 7; $i++)
-                                        @php
-                                            $day = now()->startOfWeek()->addDays($i);
-                                            $dayMeals = $meals->where('created_at', '>=', $day->startOfDay())->where('created_at', '<=', $day->endOfDay())->count();
-                                        @endphp
-                                        <div class="text-center">
-                                            <div class="text-xs text-gray-500 mb-1">{{ $day->format('D') }}</div>
-                                            <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium
-                                                {{ $dayMeals > 0 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-400' }}
-                                                {{ $day->isToday() ? 'ring-2 ring-green-400' : '' }}">
-                                                {{ $dayMeals }}
-                                            </div>
-                                        </div>
-                                    @endfor
+                                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div class="bg-green-600 h-2.5 rounded-full" style="width: {{ $proteinProgress }}%"></div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-sm font-medium text-gray-700">Fat</span>
+                                    <span class="text-sm text-gray-500">{{ round($todaysTotals['fat']) }} / {{ $fatGoal }} g</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div class="bg-yellow-500 h-2.5 rounded-full" style="width: {{ $fatProgress }}%"></div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-sm font-medium text-gray-700">Carbohydrates</span>
+                                    <span class="text-sm text-gray-500">{{ round($todaysTotals['carbs']) }} / {{ $carbGoal }} g</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div class="bg-red-600 h-2.5 rounded-full" style="width: {{ $carbProgress }}%"></div>
                                 </div>
                             </div>
                         </div>

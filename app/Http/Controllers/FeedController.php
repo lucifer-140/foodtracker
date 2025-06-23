@@ -10,9 +10,7 @@ class FeedController extends Controller
 {
 
     use AuthorizesRequests;
-    /**
-     * Display the user's social feed.
-     */
+
     public function index()
     {
 

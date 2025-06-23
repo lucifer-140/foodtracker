@@ -171,16 +171,16 @@ class MealController extends Controller
 
     public function archive()
     {
-        // Fetch all units once for efficient calculation
+
         $units = \App\Models\Unit::all()->keyBy('id');
 
-        // Fetch the user's meals, paginated, and eager load the ingredients
+
         $meals = auth()->user()->meals()
             ->with('ingredients')
             ->latest()
             ->paginate(15);
 
-        // Calculate the total calories for each meal in the paginated result
+
         $meals->each(function ($meal) use ($units) {
             $totalCalories = 0;
             foreach ($meal->ingredients as $ingredient) {
@@ -190,11 +190,11 @@ class MealController extends Controller
                 $quantityInGrams = $quantity * $conversionFactor;
                 $totalCalories += ($ingredient->calories_per_100g / 100) * $quantityInGrams;
             }
-            // Attach the calculated total as a new property on the meal object
+
             $meal->total_calories = round($totalCalories);
         });
 
-        // Return a NEW view file
+
         return view('meals.archive', [
             'meals' => $meals,
         ]);
