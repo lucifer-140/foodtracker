@@ -31,14 +31,6 @@
             </div>
 
             <div class="flex items-center space-x-3">
-                <a href="{{ route('dashboard') }}"
-                   class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition-colors">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                    </svg>
-                    Back to Dashboard
-                </a>
-
                 <a href="{{ route('meals.edit', $meal) }}"
                    class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm hover:shadow-md transform hover:scale-105">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -59,6 +51,14 @@
                         Delete
                     </button>
                 </form>
+
+                <a href="{{ route('dashboard') }}"
+                   class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition-colors">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    Back to Dashboard
+                </a>
             </div>
         </div>
     </x-slot>
@@ -280,46 +280,63 @@
                         </div>
                     </div>
 
-                    <!-- Nutrition Goals Progress -->
                     <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
                         <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                             <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
-                            Daily Goals
+                            Contribution to Daily Goals
                         </h3>
 
-                        @php
-                            // Sample daily goals - you can make these user-configurable
-                            $dailyGoals = [
-                                'calories' => 2000,
-                                'protein' => 150,
-                                'fat' => 65,
-                                'carbs' => 250
-                            ];
-                        @endphp
+                        @if ($goal)
 
-                        <div class="space-y-4">
-                            @foreach(['calories' => 'kcal', 'protein' => 'g', 'fat' => 'g', 'carbs' => 'g'] as $nutrient => $unit)
-                                @php
-                                    $current = $total[$nutrient];
-                                    $goal = $dailyGoals[$nutrient];
-                                    $percentage = min(($current / $goal) * 100, 100);
-                                    $color = $nutrient === 'calories' ? 'blue' : ($nutrient === 'protein' ? 'green' : ($nutrient === 'fat' ? 'yellow' : 'red'));
-                                @endphp
+                            @php
+                                $dailyGoals = [
+                                    'calories' => $goal->daily_calories ?? 2000,
+                                    'protein'  => $goal->daily_protein  ?? 150,
+                                    'fat'      => $goal->daily_fat      ?? 65,
+                                    'carbs'    => $goal->daily_carbs    ?? 250
+                                ];
+                            @endphp
 
-                                <div>
-                                    <div class="flex justify-between items-center mb-1">
-                                        <span class="text-sm font-medium text-gray-700 capitalize">{{ $nutrient }}</span>
-                                        <span class="text-sm text-gray-500">{{ round($current) }}/{{ $goal }}{{ $unit }}</span>
+                            <div class="space-y-4">
+                                @foreach(['calories' => 'kcal', 'protein' => 'g', 'fat' => 'g', 'carbs' => 'g'] as $nutrient => $unit)
+                                    @php
+                                        $current = $total[$nutrient];
+                                        $goalValue = $dailyGoals[$nutrient];
+                                        $percentage = $goalValue > 0 ? min(($current / $goalValue) * 100, 100) : 0;
+                                        $color = $nutrient === 'calories' ? 'blue' : ($nutrient === 'protein' ? 'green' : ($nutrient === 'fat' ? 'yellow' : 'red'));
+                                    @endphp
+
+                                    <div>
+                                        <div class="flex justify-between items-center mb-1">
+                                            <span class="text-sm font-medium text-gray-700 capitalize">{{ $nutrient }}</span>
+                                            <span class="text-sm text-gray-500">{{ round($current) }} / {{ $goalValue }}{{ $unit }}</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div class="bg-{{ $color }}-500 h-2 rounded-full" style="width: {{ $percentage }}%"></div>
+                                        </div>
+                                        <div class="text-xs text-gray-500 mt-1">{{ round($percentage) }}% of daily goal</div>
                                     </div>
-                                    <div class="w-full bg-gray-200 rounded-full h-2">
-                                        <div class="bg-{{ $color }}-500 h-2 rounded-full transition-all duration-1000 ease-out" style="width: {{ $percentage }}%"></div>
-                                    </div>
-                                    <div class="text-xs text-gray-500 mt-1">{{ round($percentage) }}% of daily goal</div>
+                                @endforeach
+                            </div>
+
+                        @else
+
+                            <div class="text-center py-4">
+                                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
                                 </div>
-                            @endforeach
-                        </div>
+                                <h4 class="text-lg font-medium text-gray-900 mb-2">No goals set yet</h4>
+                                <p class="text-gray-500 mb-4 text-sm">Set your goals to see how this meal contributes to your daily progress.</p>
+                                <a href="{{ route('goals.edit') }}" class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors">
+                                    Set Your Goals
+                                </a>
+                            </div>
+
+                        @endif
                     </div>
 
                     <!-- Actions -->

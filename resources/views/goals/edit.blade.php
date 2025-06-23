@@ -1,7 +1,17 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="text-2xl font-bold text-gray-800">Set Your Goals</h2>
-        <p class="mt-1 text-sm text-gray-500">Set your daily nutritional targets to track your progress.</p>
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-800">Set Your Goals</h2>
+                <p class="mt-1 text-sm text-gray-500">Set your daily nutritional targets to track your progress.</p>
+            </div>
+            <a href="{{ route('dashboard') }}" class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition-colors">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Dashboard
+            </a>
+        </div>
     </x-slot>
 
     <div class="py-12">

@@ -1,8 +1,18 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Reports') }}
-        </h2>
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-800">
+                    {{ __('Reports') }}
+                </h2>
+            </div>
+            <a href="{{ route('dashboard') }}" class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition-colors">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Dashboard
+            </a>
+        </div>
     </x-slot>
 
     <div class="py-12">
@@ -26,7 +36,7 @@
             const ctx = document.getElementById('calorieChart').getContext('2d');
 
             new Chart(ctx, {
-                type: 'line', // The type of chart we want to create
+                type: 'line',
                 data: {
                     labels: chartLabels,
                     datasets: [{
@@ -35,7 +45,7 @@
                         backgroundColor: 'rgba(75, 192, 192, 0.2)',
                         borderColor: 'rgba(75, 192, 192, 1)',
                         borderWidth: 2,
-                        tension: 0.3, // Makes the line slightly curved
+                        tension: 0.3,
                         fill: true,
                     }]
                 },
@@ -48,7 +58,7 @@
                     },
                     plugins: {
                         legend: {
-                            display: false // We can hide the legend if there's only one dataset
+                            display: false
                         }
                     }
                 }

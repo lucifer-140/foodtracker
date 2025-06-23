@@ -69,6 +69,7 @@ class MealController extends Controller
         $meal->load('ingredients');
         $units = Unit::all()->keyBy('id');
         $total = ['calories' => 0, 'protein' => 0, 'fat' => 0, 'carbs' => 0];
+        $goal = auth()->user()->goal;
 
         foreach ($meal->ingredients as $ingredient) {
             $quantity = $ingredient->pivot->quantity;
@@ -85,6 +86,7 @@ class MealController extends Controller
             'meal' => $meal,
             'total' => $total,
             'units' => $units,
+            'goal' => $goal,
         ]);
     }
 

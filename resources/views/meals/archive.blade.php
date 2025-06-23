@@ -5,9 +5,19 @@
                 <h2 class="text-2xl font-bold text-gray-800">Meal Archive</h2>
                 <p class="mt-1 text-sm text-gray-500">A complete log of all your tracked meals.</p>
             </div>
-            <a href="{{ route('meals.create') }}" class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700">
-                Add New Meal
-            </a>
+
+            <div class="flex items-center space-x-3">
+                <a href="{{ route('meals.create') }}" class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700">
+                    Add New Meal
+                </a>
+                <a href="{{ route('dashboard') }}"
+                   class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition-colors">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    Back to Dashboard
+                </a>
+            </div>
         </div>
     </x-slot>
 
