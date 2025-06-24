@@ -11,9 +11,7 @@ use App\Models\Friendship;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
+
     public function run(): void
     {
 
@@ -32,20 +30,34 @@ class DatabaseSeeder extends Seeder
             ->create();
 
         $allUsers = $otherUsers->merge([$mainUser]);
+
         $allUsers->each(function ($user) {
             Meal::factory(rand(2, 10))->create([
                 'user_id' => $user->id,
             ]);
         });
-        $friendsOfMainUser = $otherUsers->random(5);
 
-        foreach ($friendsOfMainUser as $friend) {
-            Friendship::create([
-                'requester_id' => $mainUser->id,
-                'addressee_id' => $friend->id,
-                'status' => 1, // Accepted
-            ]);
-        }
+        $allUsers->each(function (User $user) use ($allUsers) {
+
+            $friendsToAddCount = rand(1, 9);
+
+            $potentialFriends = $allUsers->except($user->id);
+
+            $friendsToAddCount = min($friendsToAddCount, $potentialFriends->count());
+
+            $friendsToBefriend = $potentialFriends->random($friendsToAddCount);
+
+            foreach ($friendsToBefriend as $friend) {
+
+                if (!$user->getFriendship($friend)) {
+                    Friendship::create([
+                        'requester_id' => $user->id,
+                        'addressee_id' => $friend->id,
+                        'status' => 1, // 1 = Accepted
+                    ]);
+                }
+            }
+        });
     }
 
 }

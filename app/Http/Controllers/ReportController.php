@@ -15,7 +15,7 @@ class ReportController extends Controller
 
 
         $endDate = today();
-        $startDate = today()->subDays(6);
+        $startDate = today()->subDays(30);
         $dateRange = Carbon::parse($startDate)->toPeriod($endDate);
 
 

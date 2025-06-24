@@ -6,8 +6,8 @@ use App\Models\Ingredient;
 use App\Models\Meal;
 use App\Models\Unit;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Facades\File;      // <-- IMPORT FILE FACADE
-use Illuminate\Support\Facades\Storage;  // <-- IMPORT STORAGE FACADE
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 
 class MealFactory extends Factory
 {
