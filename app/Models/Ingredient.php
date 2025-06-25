@@ -23,9 +23,6 @@ class Ingredient extends Model
         'carbs_per_100g',
     ];
 
-    /**
-     * The meals that contain the ingredient.
-     */
     public function meals(): BelongsToMany
     {
         return $this->belongsToMany(Meal::class, 'ingredient_meal')

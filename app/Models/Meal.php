@@ -22,17 +22,11 @@ class Meal extends Model
         'image_path',
     ];
 
-    /**
-     * Get the user that owns the meal.
-     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * The ingredients that belong to the meal.
-     */
     public function ingredients(): BelongsToMany
     {
         return $this->belongsToMany(Ingredient::class, 'ingredient_meal')

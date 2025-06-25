@@ -13,9 +13,7 @@ class UnitSeeder extends Seeder
      */
     public function run(): void
     {
-        // Note: Some units like 'piece', 'tsp', etc., are tricky as their weight
-        // depends on the ingredient. For now, we'll treat them as grams (a factor of 1)
-        // as a simplification. A more advanced system could handle this differently.
+
         $units = [
             // Metric Weight
             ['name' => 'gram', 'abbreviation' => 'g', 'conversion_factor' => 1.0],

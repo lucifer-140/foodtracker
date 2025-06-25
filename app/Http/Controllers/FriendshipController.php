@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Friendship;
 use Illuminate\Http\Request;
+use App\Models\Unit;
+use Illuminate\Support\Carbon;
 
 class FriendshipController extends Controller
 {
@@ -24,9 +26,7 @@ class FriendshipController extends Controller
         ]);
     }
 
-    /**
-     * Display a listing of all users to find friends.
-     */
+
     public function indexUsers()
     {
         $users = User::where('id', '!=', auth()->id())->latest()->paginate(20);
@@ -112,17 +112,65 @@ class FriendshipController extends Controller
         if ($currentUser->id === $user->id) {
             return redirect()->route('dashboard');
         }
-
         if (!$currentUser->friends->contains($user)) {
             abort(403, 'You can only view the profiles of your friends.');
         }
 
-        $meals = $user->meals()->latest()->paginate(9);
+        $units = Unit::all()->keyBy('id');
+        $meals = $user->meals()->with('ingredients')->latest()->paginate(9);
+
+        $meals->each(function ($meal) use ($units) {
+            $totals = ['calories' => 0, 'protein' => 0, 'fat' => 0, 'carbs' => 0];
+            foreach ($meal->ingredients as $ingredient) {
+                $quantity = $ingredient->pivot->quantity;
+                $unitId = $ingredient->pivot->unit_id;
+                $conversionFactor = $units[$unitId]->conversion_factor ?? 1.0;
+                $quantityInGrams = $quantity * $conversionFactor;
+                $totals['calories'] += ($ingredient->calories_per_100g / 100) * $quantityInGrams;
+                $totals['protein']  += ($ingredient->protein_per_100g / 100) * $quantityInGrams;
+                $totals['fat']      += ($ingredient->fat_per_100g / 100) * $quantityInGrams;
+                $totals['carbs']    += ($ingredient->carbs_per_100g / 100) * $quantityInGrams;
+            }
+            $meal->total_calories = $totals['calories'];
+            $meal->total_protein  = $totals['protein'];
+            $meal->total_fat      = $totals['fat'];
+            $meal->total_carbs    = $totals['carbs'];
+        });
+
+
+        $friendsCount = $user->friends->count();
+
+        $logDates = $user->meals()
+            ->selectRaw('DATE(created_at) as log_date')
+            ->distinct()
+            ->orderBy('log_date', 'desc')
+            ->pluck('log_date');
+
+        $dayStreak = 0;
+        if ($logDates->isNotEmpty()) {
+            $currentDate = today();
+            if ($logDates->first() == $currentDate->toDateString() || $logDates->first() == $currentDate->copy()->subDay()->toDateString()) {
+                $dayStreak = 1;
+                $previousDate = Carbon::parse($logDates->first())->subDay();
+                foreach ($logDates->slice(1) as $date) {
+                    if ($date == $previousDate->toDateString()) {
+                        $dayStreak++;
+                        $previousDate->subDay();
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }
 
         return view('users.show-profile', [
             'user' => $user,
             'meals' => $meals,
+            'friendsCount' => $friendsCount, // Pass new data to the view
+            'dayStreak' => $dayStreak,       // Pass new data to the view
         ]);
     }
+
+
 
 }

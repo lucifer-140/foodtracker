@@ -6,6 +6,8 @@ use App\Models\Ingredient;
 use App\Models\Meal;
 use App\Models\Unit;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 
 class MealFactory extends Factory
 {
@@ -16,25 +18,44 @@ class MealFactory extends Factory
      */
     public function definition(): array
     {
+        $sourceDirectory = storage_path('app/seed_images');
+        $destinationDirectory = 'meal-images';
+
+        Storage::disk('public')->makeDirectory($destinationDirectory);
+
+        $sourceFiles = File::files($sourceDirectory);
+
+        $imagePath = null;
+        if (count($sourceFiles) > 0) {
+            $randomFile = $sourceFiles[array_rand($sourceFiles)];
+            $newFilename = uniqid() . '-' . $randomFile->getFilename();
+
+            Storage::disk('public')->put(
+                $destinationDirectory . '/' . $newFilename,
+                File::get($randomFile)
+            );
+
+            $imagePath = $destinationDirectory . '/' . $newFilename;
+        }
+
         return [
-            // Generate a random, capitalized, 2-to-4-word meal name
             'name' => str()->title(fake()->words(rand(2, 4), true)),
             'user_id' => \App\Models\User::factory(),
-            'image_path' => null,
+            'image_path' => $imagePath,
+
+            'created_at' => fake()->dateTimeBetween('-1 month', 'now'),
+            'updated_at' => function (array $attributes) {
+                return $attributes['created_at'];
+            },
         ];
     }
 
-    /**
-     * Configure the model factory.
-     * This is where we attach ingredients after a meal has been created.
-     */
     public function configure(): static
     {
         return $this->afterCreating(function (Meal $meal) {
-
             $ingredientCount = rand(3, 8);
             $ingredients = Ingredient::inRandomOrder()->take($ingredientCount)->get();
-            $gramUnitId = Unit::where('abbreviation', 'g')->first()->id;
+            $gramUnitId = Unit::where('abbreviation', 'g')->first()->id ?? 1;
 
             foreach ($ingredients as $ingredient) {
                 $meal->ingredients()->attach($ingredient->id, [
