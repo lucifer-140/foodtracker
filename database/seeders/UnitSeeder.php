@@ -13,20 +13,31 @@ class UnitSeeder extends Seeder
      */
     public function run(): void
     {
+
         $units = [
-            ['name' => 'gram', 'abbreviation' => 'g'],
-            ['name' => 'kilogram', 'abbreviation' => 'kg'],
-            ['name' => 'milliliter', 'abbreviation' => 'ml'],
-            ['name' => 'liter', 'abbreviation' => 'l'],
-            ['name' => 'ounce', 'abbreviation' => 'oz'],
-            ['name' => 'pound', 'abbreviation' => 'lb'],
-            ['name' => 'piece', 'abbreviation' => 'pc'],
-            ['name' => 'teaspoon', 'abbreviation' => 'tsp'],
-            ['name' => 'tablespoon', 'abbreviation' => 'tbsp'],
+            // Metric Weight
+            ['name' => 'gram', 'abbreviation' => 'g', 'conversion_factor' => 1.0],
+            ['name' => 'kilogram', 'abbreviation' => 'kg', 'conversion_factor' => 1000.0],
+
+            // Imperial Weight
+            ['name' => 'pound', 'abbreviation' => 'lb', 'conversion_factor' => 453.592],
+            ['name' => 'ounce', 'abbreviation' => 'oz', 'conversion_factor' => 28.3495],
+
+            // Volume (Approximated to grams of water)
+            ['name' => 'milliliter', 'abbreviation' => 'ml', 'conversion_factor' => 1.0],
+            ['name' => 'liter', 'abbreviation' => 'l', 'conversion_factor' => 1000.0],
+            ['name' => 'teaspoon', 'abbreviation' => 'tsp', 'conversion_factor' => 5.0],
+            ['name' => 'tablespoon', 'abbreviation' => 'tbsp', 'conversion_factor' => 15.0],
+
+            // Piece-based
+            ['name' => 'piece', 'abbreviation' => 'pc', 'conversion_factor' => 1.0],
         ];
 
-        foreach ($units as $unit) {
-            Unit::create($unit);
+        foreach ($units as $unitData) {
+            \App\Models\Unit::updateOrCreate(
+                ['name' => $unitData['name']],
+                $unitData
+            );
         }
     }
 }

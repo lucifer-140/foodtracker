@@ -1,7 +1,7 @@
 # FoodTracker - A Laravel Meal Tracking Application
 
 <p align="center">
-<img src="[suspicious link removed]" width="400" alt="foodtracker Logo">
+<img src="public/images/logo.png" width="400" alt="foodtracker Logo">
 </p>
 
 FoodTracker is a web application built with the Laravel framework to help you track your daily meals and calculate their nutritional information. It provides a clean, simple interface for adding meals, managing ingredients, and viewing a summary of your intake.
