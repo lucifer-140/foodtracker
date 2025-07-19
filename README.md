@@ -25,9 +25,31 @@ This application was built as a step-by-step project to explore core Laravel fea
 * **Meal Management**: Full CRUD functionality for meals. Users can add, view, edit, and delete their own meals.
 * **Image Uploads**: Users can upload an image for each meal.
 * **Dynamic Ingredient Form**: Add multiple ingredients to a single meal on the fly.
-* **Custom Searchable Dropdown**: A bespoke, searchable dropdown component for easy ingredient selection, built with vanilla JavaScript.
 * **Automatic Nutritional Calculation**: View a summary of total calories, protein, fat, and carbs for each meal.
 * **Database Seeding**: Comes pre-populated with a comprehensive list of common ingredients and measurement units.
+
+## Database Schema
+
+The application's data is structured around several key models that are interconnected to track meals, their ingredients, and social connections.
+
+### Entity-Relationship Diagram (ERD)
+
+This image bellow shows relationships between the main database tables.
+
+<p align="center">
+<img src="public/images/erd.png" width="400" alt="foodtracker Logo">
+</p>
+
+### Table Descriptions
+
+* **users**: Stores user account information (name, email, password). Provided by Laravel Breeze. It has a self-referencing many-to-many relationship to model friendships.
+* **goals**: Stores a user's personal nutritional goals (e.g., target daily calories). It has a one-to-one relationship with a user.
+* **meals**: Stores information about a specific meal, including its name and an optional image. Each meal belongs to one user.
+* **ingredients**: A master list of all possible ingredients and their base nutritional information (per 100g).
+* **units**: A master list of measurement units (e.g., 'gram', 'kilogram') and their conversion factors to grams.
+* **ingredient_meal**: This is a pivot table that connects meals and ingredients in a many-to-many relationship. It stores the specific quantity of an ingredient and the unit_id used for a particular meal.
+* **friendships**: A pivot-like table that manages the many-to-many relationship between users. It stores the requester_id, the addressee_id, and a status to track pending, accepted, or declined friend requests.
+
 
 ## Getting Started
 
@@ -105,7 +127,6 @@ Follow these instructions to get a local copy of the project up and running for 
     npm run dev
     ```
 
-    *Keep this process running in a separate terminal during development.*
 
 8.  **Start the development server**
 
