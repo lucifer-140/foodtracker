@@ -192,14 +192,14 @@ class MealController extends Controller
                 $unitId = $ingredient->pivot->unit_id;
                 $conversionFactor = $units[$unitId]->conversion_factor ?? 1.0;
                 $quantityInGrams = $quantity * $conversionFactor;
-                
+
                 $total['calories'] += ($ingredient->calories_per_100g / 100) * $quantityInGrams;
                 $total['protein'] += ($ingredient->protein_per_100g / 100) * $quantityInGrams;
                 $total['fat'] += ($ingredient->fat_per_100g / 100) * $quantityInGrams;
                 $total['carbs'] += ($ingredient->carbs_per_100g / 100) * $quantityInGrams;
             }
 
-            // Round all values and add to meal object
+
             $meal->calories = round($total['calories']);
             $meal->protein = round($total['protein']);
             $meal->fat = round($total['fat']);
