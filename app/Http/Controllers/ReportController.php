@@ -12,7 +12,7 @@ class ReportController extends Controller
     {
         $user = auth()->user();
         $units = Unit::all()->keyBy('id');
-
+        
 
         $endDate = today();
         $startDate = today()->subDays(30);
@@ -57,6 +57,7 @@ class ReportController extends Controller
         return view('reports.index', [
             'chartLabels' => $chartLabels,
             'chartData' => $chartData,
+            'goal' => auth()->user()->goal
         ]);
     }
 }

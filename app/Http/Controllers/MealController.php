@@ -170,32 +170,41 @@ class MealController extends Controller
 
         return redirect()->route('dashboard')->with('success', 'Meal deleted successfully!');
     }
-
     public function archive()
     {
-
         $units = \App\Models\Unit::all()->keyBy('id');
-
 
         $meals = auth()->user()->meals()
             ->with('ingredients')
             ->latest()
             ->paginate(15);
 
-
         $meals->each(function ($meal) use ($units) {
-            $totalCalories = 0;
+            $total = [
+                'calories' => 0,
+                'protein' => 0,
+                'fat' => 0,
+                'carbs' => 0
+            ];
+
             foreach ($meal->ingredients as $ingredient) {
                 $quantity = $ingredient->pivot->quantity;
                 $unitId = $ingredient->pivot->unit_id;
                 $conversionFactor = $units[$unitId]->conversion_factor ?? 1.0;
                 $quantityInGrams = $quantity * $conversionFactor;
-                $totalCalories += ($ingredient->calories_per_100g / 100) * $quantityInGrams;
+                
+                $total['calories'] += ($ingredient->calories_per_100g / 100) * $quantityInGrams;
+                $total['protein'] += ($ingredient->protein_per_100g / 100) * $quantityInGrams;
+                $total['fat'] += ($ingredient->fat_per_100g / 100) * $quantityInGrams;
+                $total['carbs'] += ($ingredient->carbs_per_100g / 100) * $quantityInGrams;
             }
 
-            $meal->total_calories = round($totalCalories);
+            // Round all values and add to meal object
+            $meal->calories = round($total['calories']);
+            $meal->protein = round($total['protein']);
+            $meal->fat = round($total['fat']);
+            $meal->carbs = round($total['carbs']);
         });
-
 
         return view('meals.archive', [
             'meals' => $meals,

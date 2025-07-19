@@ -169,18 +169,19 @@
                 <div class="lg:col-span-2">
                     <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
                         <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                            <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                            <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
                             Today's Progress
                         </h3>
 
                         @php
-                            // Set default goals if the user hasn't set any
                             $calorieGoal = $goal->daily_calories ?? 2000;
                             $proteinGoal = $goal->daily_protein ?? 120;
                             $fatGoal = $goal->daily_fat ?? 60;
                             $carbGoal = $goal->daily_carbs ?? 250;
 
-                            // Calculate percentages, ensuring we don't divide by zero
                             $calorieProgress = $calorieGoal > 0 ? min(($todaysTotals['calories'] / $calorieGoal) * 100, 100) : 0;
                             $proteinProgress = $proteinGoal > 0 ? min(($todaysTotals['protein'] / $proteinGoal) * 100, 100) : 0;
                             $fatProgress = $fatGoal > 0 ? min(($todaysTotals['fat'] / $fatGoal) * 100, 100) : 0;
@@ -188,6 +189,7 @@
                         @endphp
 
                         <div class="space-y-6">
+                            <!-- Calories -->
                             <div>
                                 <div class="flex justify-between items-center mb-1">
                                     <span class="text-sm font-medium text-gray-700">Calories</span>
@@ -196,8 +198,18 @@
                                 <div class="w-full bg-gray-200 rounded-full h-2.5">
                                     <div class="bg-blue-600 h-2.5 rounded-full" style="width: {{ $calorieProgress }}%"></div>
                                 </div>
+                                @if($todaysTotals['calories'] >= $calorieGoal)
+                                    <p class="text-xs mt-1 text-red-600 font-semibold flex items-center">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 9v2m0 4h.01M12 5a7 7 0 100 14 7 7 0 000-14z" />
+                                        </svg>
+                                        You've exceeded your calorie goal!
+                                    </p>
+                                @endif
                             </div>
 
+                            <!-- Protein -->
                             <div>
                                 <div class="flex justify-between items-center mb-1">
                                     <span class="text-sm font-medium text-gray-700">Protein</span>
@@ -206,8 +218,18 @@
                                 <div class="w-full bg-gray-200 rounded-full h-2.5">
                                     <div class="bg-green-600 h-2.5 rounded-full" style="width: {{ $proteinProgress }}%"></div>
                                 </div>
+                                @if($todaysTotals['protein'] >= $proteinGoal)
+                                    <p class="text-xs mt-1 text-red-600 font-semibold flex items-center">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"   
+                                                d="M12 9v2m0 4h.01M12 5a7 7 0 100 14 7 7 0 000-14z" />
+                                        </svg>
+                                        Protein intake exceeded!
+                                    </p>
+                                @endif
                             </div>
 
+                            <!-- Fat -->
                             <div>
                                 <div class="flex justify-between items-center mb-1">
                                     <span class="text-sm font-medium text-gray-700">Fat</span>
@@ -216,8 +238,18 @@
                                 <div class="w-full bg-gray-200 rounded-full h-2.5">
                                     <div class="bg-yellow-500 h-2.5 rounded-full" style="width: {{ $fatProgress }}%"></div>
                                 </div>
+                                @if($todaysTotals['fat'] >= $fatGoal)
+                                    <p class="text-xs mt-1 text-red-600 font-semibold flex items-center">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 9v2m0 4h.01M12 5a7 7 0 100 14 7 7 0 000-14z" />
+                                        </svg>
+                                        Fat limit reached!
+                                    </p>
+                                @endif
                             </div>
 
+                            <!-- Carbohydrates -->
                             <div>
                                 <div class="flex justify-between items-center mb-1">
                                     <span class="text-sm font-medium text-gray-700">Carbohydrates</span>
@@ -226,11 +258,21 @@
                                 <div class="w-full bg-gray-200 rounded-full h-2.5">
                                     <div class="bg-red-600 h-2.5 rounded-full" style="width: {{ $carbProgress }}%"></div>
                                 </div>
+                                @if($todaysTotals['carbs'] >= $carbGoal)
+                                    <p class="text-xs mt-1 text-red-600 font-semibold flex items-center">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 9v2m0 4h.01M12 5a7 7 0 100 14 7 7 0 000-14z" />
+                                        </svg>
+                                        Carb intake exceeded!
+                                    </p>
+                                @endif
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+
 
             <!-- Meals Section -->
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
@@ -253,7 +295,7 @@
                         Add New Meal
                     </a>
                 </div>
-            </div>
+            </div>  
 
             <!-- Meals Grid -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
