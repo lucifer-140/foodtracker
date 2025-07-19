@@ -71,7 +71,11 @@
                         <div>
                             <h3 class="text-lg font-semibold text-gray-800">Weekly Calorie Intake</h3>
                             <p class="text-sm text-gray-500">Last 7 days</p>
-                        </div>git
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="px-3 py-1 text-sm bg-blue-50 text-blue-600 rounded-lg">Week</button>
+                            <button class="px-3 py-1 text-sm bg-gray-50 text-gray-600 rounded-lg">Month</button>
+                        </div>
                     </div>
                     
                     <div class="h-80">
@@ -94,11 +98,11 @@
                         <div class="flex items-center justify-between">
                             <span class="text-sm font-medium text-gray-600">{{ $day }}</span>
                             <div class="flex items-center">
-                                <span class="text-sm font-semibold mr-2 {{ $calories > 2500 ? 'text-red-500' : 'text-green-500' }}">
+                                <span class="text-sm font-semibold mr-2 {{ $calories > ($goal->daily_calories ?? 2000) ? 'text-red-500' : 'text-green-500' }}">
                                     {{ $calories }} kcal
                                 </span>
-                                <span class="text-xs px-2 py-1 rounded-full {{ $calories > 2500 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800' }}">
-                                    {{ $calories > 2500 ? 'Above target' : 'On target' }}
+                                <span class="text-xs px-2 py-1 rounded-full {{ $calories > ($goal->daily_calories ?? 2000) ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800' }}">
+                                    {{ $calories > ($goal->daily_calories ?? 2000) ? 'Above target' : 'On target' }}
                                 </span>
                             </div>
                         </div>
@@ -120,7 +124,7 @@
                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                                 </svg>
                             </span>
-                            <span class="text-sm text-gray-700">You stayed within your calorie goal on {{ count(array_filter($chartData, function($v) { return $v <= 2500; })) }} out of 7 days</span>
+                            <span class="text-sm text-gray-700">You stayed within your calorie goal on {{ count(array_filter($chartData, function($v) use ($goal) { return $v <= ($goal->daily_calories ?? 2000); })) }} out of 7 days</span>
                         </li>
                         <li class="flex items-start">
                             <span class="flex-shrink-0 mt-1 mr-2 text-yellow-500">
@@ -136,7 +140,7 @@
                                     <path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clip-rule="evenodd" />
                                 </svg>
                             </span>
-                            <span class="text-sm text-gray-700">Average daily intake: {{ number_format(array_sum($chartData)/count($chartData)) }} kcal</span>
+                            <span class="text-sm text-gray-700">Average daily intake: {{ number_format(array_sum($chartData)/count($chartData)) }} kcal (Goal: {{ $goal->daily_calories ?? 2000 }} kcal)</span>
                         </li>
                     </ul>
                 </div>
@@ -148,6 +152,7 @@
         document.addEventListener('DOMContentLoaded', function () {
             const chartLabels = @json($chartLabels);
             const chartData = @json($chartData);
+            const calorieGoal = {{ $goal->daily_calories ?? 2000 }};
 
             const ctx = document.getElementById('calorieChart').getContext('2d');
 
@@ -155,20 +160,31 @@
                 type: 'line',
                 data: {
                     labels: chartLabels,
-                    datasets: [{
-                        label: 'Calories',
-                        data: chartData,
-                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                        borderColor: 'rgba(99, 102, 241, 1)',
-                        borderWidth: 2,
-                        tension: 0.4,
-                        fill: true,
-                        pointBackgroundColor: 'rgba(99, 102, 241, 1)',
-                        pointBorderColor: '#fff',
-                        pointBorderWidth: 2,
-                        pointRadius: 5,
-                        pointHoverRadius: 7
-                    }]
+                    datasets: [
+                        {
+                            label: 'Calories',
+                            data: chartData,
+                            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                            borderColor: 'rgba(99, 102, 241, 1)',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: 'rgba(99, 102, 241, 1)',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 5,
+                            pointHoverRadius: 7
+                        },
+                        {
+                            label: 'Daily Goal',
+                            data: Array(chartLabels.length).fill(calorieGoal),
+                            borderColor: 'rgba(239, 68, 68, 1)',
+                            borderWidth: 1,
+                            borderDash: [5, 5],
+                            pointRadius: 0,
+                            fill: false
+                        }
+                    ]
                 },
                 options: {
                     responsive: true,
@@ -207,7 +223,14 @@
                             },
                             callbacks: {
                                 label: function(context) {
-                                    return context.parsed.y + ' calories';
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += context.parsed.y + ' calories';
+                                    }
+                                    return label;
                                 }
                             }
                         }

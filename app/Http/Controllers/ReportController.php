@@ -57,6 +57,7 @@ class ReportController extends Controller
         return view('reports.index', [
             'chartLabels' => $chartLabels,
             'chartData' => $chartData,
+            'goal' => auth()->user()->goal
         ]);
     }
 }
