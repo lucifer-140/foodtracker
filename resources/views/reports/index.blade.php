@@ -71,11 +71,7 @@
                         <div>
                             <h3 class="text-lg font-semibold text-gray-800">Weekly Calorie Intake</h3>
                             <p class="text-sm text-gray-500">Last 7 days</p>
-                        </div>
-                        <div class="flex space-x-2">
-                            <button class="px-3 py-1 text-sm bg-blue-50 text-blue-600 rounded-lg">Week</button>
-                            <button class="px-3 py-1 text-sm bg-gray-50 text-gray-600 rounded-lg">Month</button>
-                        </div>
+                        </div>git
                     </div>
                     
                     <div class="h-80">
