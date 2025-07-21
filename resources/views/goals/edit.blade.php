@@ -184,7 +184,7 @@
                 <div class="p-6 sm:p-8">
                     <form method="POST" action="{{ route('goals.update', $goal) }}" id="goalsForm">
                         @csrf
-                        @method('PUT')
+                        @method('POST')
 
                         <div class="space-y-8">
                             <div class="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
