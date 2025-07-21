@@ -65,7 +65,6 @@ class MealController extends Controller
     public function show(Meal $meal)
     {
         $this->authorize('view', $meal);
-
         $meal->load('ingredients');
         $units = Unit::all()->keyBy('id');
         $total = ['calories' => 0, 'protein' => 0, 'fat' => 0, 'carbs' => 0];
@@ -76,6 +75,7 @@ class MealController extends Controller
             $unitId = $ingredient->pivot->unit_id;
             $conversionFactor = $units[$unitId]->conversion_factor ?? 1.0;
             $quantityInGrams = $quantity * $conversionFactor;
+
             $total['calories'] += ($ingredient->calories_per_100g / 100) * $quantityInGrams;
             $total['protein']  += ($ingredient->protein_per_100g / 100) * $quantityInGrams;
             $total['fat']      += ($ingredient->fat_per_100g / 100) * $quantityInGrams;
@@ -93,7 +93,6 @@ class MealController extends Controller
     public function edit(Meal $meal)
     {
         $this->authorize('update', $meal);
-
         $meal->load('ingredients');
         $ingredients = Ingredient::orderBy('name')->get();
         $ingredientsJson = $ingredients->keyBy('id');
@@ -106,6 +105,7 @@ class MealController extends Controller
             $unitId = $ingredient->pivot->unit_id;
             $conversionFactor = $unitsJson[$unitId]->conversion_factor ?? 1.0;
             $quantityInGrams = $quantity * $conversionFactor;
+
             $total['calories'] += ($ingredient->calories_per_100g / 100) * $quantityInGrams;
             $total['protein']  += ($ingredient->protein_per_100g / 100) * $quantityInGrams;
             $total['fat']      += ($ingredient->fat_per_100g / 100) * $quantityInGrams;
@@ -145,7 +145,9 @@ class MealController extends Controller
                 }
                 $imagePath = $request->file('image')->store('meal-images', 'public');
             }
+
             $meal->update(['name' => $validated['name'], 'image_path' => $imagePath]);
+
             $ingredientsToSync = [];
             foreach ($validated['ingredients'] as $ingredientData) {
                 $ingredientsToSync[$ingredientData['id']] = [
@@ -153,6 +155,7 @@ class MealController extends Controller
                     'unit_id' => $ingredientData['unit_id']
                 ];
             }
+
             $meal->ingredients()->sync($ingredientsToSync);
         });
 
@@ -166,18 +169,52 @@ class MealController extends Controller
         if ($meal->image_path) {
             Storage::disk('public')->delete($meal->image_path);
         }
+
         $meal->delete();
 
         return redirect()->route('dashboard')->with('success', 'Meal deleted successfully!');
     }
-    public function archive()
-    {
-        $units = \App\Models\Unit::all()->keyBy('id');
 
-        $meals = auth()->user()->meals()
-            ->with('ingredients')
-            ->latest()
-            ->paginate(15);
+    public function archive(Request $request)
+    {
+        $units = Unit::all()->keyBy('id');
+        $query = auth()->user()->meals()->with('ingredients');
+
+
+        if ($request->filled('search')) {
+            $query->where('name', 'LIKE', '%' . $request->search . '%');
+        }
+
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+
+        $sortBy = $request->get('sort_by', 'created_at_desc');
+
+        switch ($sortBy) {
+            case 'created_at_asc':
+                $query->orderBy('created_at', 'asc');
+                break;
+            case 'name_asc':
+                $query->orderBy('name', 'asc');
+                break;
+            default:
+                $query->orderBy('created_at', 'desc');
+                break;
+        }
+
+
+        if ($request->get('export') === 'csv') {
+            return $this->exportToCsv($query->get(), $units);
+        }
+
+        $meals = $query->paginate(15)->appends($request->query());
+
 
         $meals->each(function ($meal) use ($units) {
             $total = [
@@ -199,16 +236,117 @@ class MealController extends Controller
                 $total['carbs'] += ($ingredient->carbs_per_100g / 100) * $quantityInGrams;
             }
 
-
             $meal->calories = round($total['calories']);
             $meal->protein = round($total['protein']);
             $meal->fat = round($total['fat']);
             $meal->carbs = round($total['carbs']);
         });
 
+        if ($request->filled('calorie_range')) {
+            $range = $request->calorie_range;
+            $filteredMeals = $meals->filter(function ($meal) use ($range) {
+                switch ($range) {
+                    case '0-200':
+                        return $meal->calories >= 0 && $meal->calories <= 200;
+                    case '200-400':
+                        return $meal->calories > 200 && $meal->calories <= 400;
+                    case '400-600':
+                        return $meal->calories > 400 && $meal->calories <= 600;
+                    case '600-800':
+                        return $meal->calories > 600 && $meal->calories <= 800;
+                    case '800+':
+                        return $meal->calories > 800;
+                    default:
+                        return true;
+                }
+            });
+
+
+            if ($range) {
+                $currentPage = $request->get('page', 1);
+                $perPage = 15;
+                $offset = ($currentPage - 1) * $perPage;
+
+                $paginatedItems = $filteredMeals->slice($offset, $perPage)->values();
+                $meals = new \Illuminate\Pagination\LengthAwarePaginator(
+                    $paginatedItems,
+                    $filteredMeals->count(),
+                    $perPage,
+                    $currentPage,
+                    [
+                        'path' => $request->url(),
+                        'pageName' => 'page',
+                    ]
+                );
+                $meals->appends($request->query());
+            }
+        }
+
         return view('meals.archive', [
             'meals' => $meals,
         ]);
     }
 
+    private function exportToCsv($meals, $units)
+    {
+        $filename = 'meals_export_' . date('Y-m-d_H-i-s') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $callback = function() use ($meals, $units) {
+            $file = fopen('php://output', 'w');
+
+
+            fputcsv($file, [
+                'Date',
+                'Time',
+                'Name',
+                'Calories',
+                'Protein (g)',
+                'Carbs (g)',
+                'Fat (g)',
+                'Ingredients'
+            ]);
+
+
+            foreach ($meals as $meal) {
+
+                $total = ['calories' => 0, 'protein' => 0, 'fat' => 0, 'carbs' => 0];
+                $ingredientsList = [];
+
+                foreach ($meal->ingredients as $ingredient) {
+                    $quantity = $ingredient->pivot->quantity;
+                    $unitId = $ingredient->pivot->unit_id;
+                    $conversionFactor = $units[$unitId]->conversion_factor ?? 1.0;
+                    $quantityInGrams = $quantity * $conversionFactor;
+
+                    $total['calories'] += ($ingredient->calories_per_100g / 100) * $quantityInGrams;
+                    $total['protein'] += ($ingredient->protein_per_100g / 100) * $quantityInGrams;
+                    $total['fat'] += ($ingredient->fat_per_100g / 100) * $quantityInGrams;
+                    $total['carbs'] += ($ingredient->carbs_per_100g / 100) * $quantityInGrams;
+
+                    $unit = $units[$unitId];
+                    $ingredientsList[] = $ingredient->name . ' (' . $quantity . ' ' . $unit->name . ')';
+                }
+
+                fputcsv($file, [
+                    $meal->created_at->format('Y-m-d'),
+                    $meal->created_at->format('H:i:s'),
+                    $meal->name,
+                    round($total['calories']),
+                    round($total['protein']),
+                    round($total['carbs']),
+                    round($total['fat']),
+                    implode(', ', $ingredientsList)
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 }

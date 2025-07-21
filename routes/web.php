@@ -51,7 +51,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/friends/meals/{meal}', [\App\Http\Controllers\FeedController::class, 'showFriendMeal'])->name('friends.meals.show');
 
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
-
+    Route::get('/reports/export', [ReportController::class, 'export'])->name('reports.export');
 
     Route::get('/goals', [GoalController::class, 'edit'])->name('goals.edit');
     Route::post('/goals', [GoalController::class, 'update'])->name('goals.update');
