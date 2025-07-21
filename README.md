@@ -824,7 +824,7 @@ Route::middleware('auth')->group(function () {
 
 1. **Clone the Repository**
    ```bash
-   git clone https://github.com/your-username/foodtracker.git
+   git clone https://github.com/lucifer-140/foodtracker.git
    cd foodtracker
    ```
 
